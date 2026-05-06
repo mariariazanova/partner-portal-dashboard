@@ -1,8 +1,8 @@
 [
   {
-    "dealId": "DEAL-001",
-    "dealName": "Enterprise Cloud Migration",
-    "accountName": "Acme Corporation",
+    "dealId": "DEAL-001-ENTERPRISE-MIGRATION-2026",
+    "dealName": "Enterprise Cloud Migration and Digital Transformation Initiative",
+    "accountName": "Acme Corporation International Holdings LLC",
     "status": "Open",
     "amount": 125000,
     "createdDate": "2026-01-15T10:30:00Z",
@@ -14,7 +14,7 @@
   },
   {
     "dealId": "DEAL-002",
-    "dealName": "Security Audit Services",
+    "dealName": "Comprehensive Security Audit Services and Penetration Testing for Enterprise Systems",
     "accountName": "TechStart Inc",
     "status": "Approved",
     "amount": 45000,
@@ -28,7 +28,7 @@
   {
     "dealId": "DEAL-003",
     "dealName": "Data Center Modernization",
-    "accountName": "Global Finance Ltd",
+    "accountName": "Global Finance and Investment Management Corporation Ltd",
     "status": "Rejected",
     "amount": 280000,
     "createdDate": "2026-01-05T14:45:00Z",
@@ -117,9 +117,9 @@
     "updatedDate": "2026-03-15T13:45:00Z"
   },
   {
-    "dealId": "DEAL-010",
-    "dealName": "IoT Sensor Network",
-    "accountName": "Smart Buildings Inc",
+    "dealId": "DEAL-010-IOT-SENSORS-AUTOMATION-2026",
+    "dealName": "IoT Sensor Network and Building Automation System Implementation",
+    "accountName": "Smart Buildings and Facility Management Solutions International Inc",
     "status": "Open",
     "amount": 112000,
     "createdDate": "2026-03-18T12:00:00Z",
@@ -208,9 +208,9 @@
     "updatedDate": "2026-05-04T13:20:00Z"
   },
   {
-    "dealId": "DEAL-017",
-    "dealName": "Supply Chain Optimization",
-    "accountName": "Logistics Prime",
+    "dealId": "DEAL-017-SUPPLY-CHAIN-OPT",
+    "dealName": "AI-Driven Supply Chain Optimization and Predictive Analytics Platform",
+    "accountName": "Logistics Prime and Transportation Management Services Corporation",
     "status": "Approved",
     "amount": 178000,
     "createdDate": "2026-03-01T08:45:00Z",
