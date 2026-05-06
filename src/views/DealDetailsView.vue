@@ -14,20 +14,47 @@
         </v-btn>
 
         <!-- Loading State -->
-        <v-card v-if="loading" class="pa-4">
-          <v-progress-circular indeterminate color="primary"></v-progress-circular>
-          <span class="ml-4">Loading deal details...</span>
+        <v-card v-if="loading">
+          <div class="d-flex flex-column justify-center align-center pa-8">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+              size="64"
+            ></v-progress-circular>
+            <div class="mt-4 text-body-1">Loading deal details...</div>
+          </div>
         </v-card>
 
         <!-- Error State -->
         <v-alert v-else-if="error" type="error" class="mb-4">
           {{ error }}
+          <template #append>
+            <v-btn
+              variant="text"
+              @click="goBack"
+            >
+              Back to Deals
+            </v-btn>
+          </template>
         </v-alert>
 
         <!-- Deal Not Found -->
-        <v-alert v-else-if="!deal" type="warning" class="mb-4">
-          Deal not found
-        </v-alert>
+        <v-empty-state
+          v-else-if="!deal"
+          icon="mdi-briefcase-off-outline"
+          title="Deal not found"
+          text="The deal you are looking for does not exist or has been removed."
+        >
+          <template #actions>
+            <v-btn
+              color="primary"
+              variant="elevated"
+              @click="goBack"
+            >
+              Back to Deals
+            </v-btn>
+          </template>
+        </v-empty-state>
 
         <!-- Deal Details -->
         <template v-else>
@@ -159,7 +186,7 @@ const router = useRouter()
 const dealStore = useDealStore()
 
 // State
-const loading = ref(false)
+const loading = ref(true)
 const error = ref<string | null>(null)
 
 // Computed
@@ -207,7 +234,6 @@ function goBack(): void {
 onMounted(async () => {
   // If store is empty, load deals
   if (dealStore.allDeals.length === 0) {
-    loading.value = true
     error.value = null
     try {
       const { fetchAllDeals } = await import('@/services/dealService')
@@ -219,6 +245,11 @@ onMounted(async () => {
     } finally {
       loading.value = false
     }
+  } else {
+    // Data already loaded, show content after brief delay
+    setTimeout(() => {
+      loading.value = false
+    }, 300)
   }
 })
 </script>

@@ -7,15 +7,57 @@
             <v-icon icon="mdi-briefcase-outline" class="me-2"></v-icon>
             Deals
             <v-spacer></v-spacer>
-            <v-chip v-if="totalDeals" color="primary" variant="outlined">
+            <v-chip v-if="totalDeals > 0 && !loading" color="primary" variant="outlined">
               {{ totalDeals }} deals
             </v-chip>
           </v-card-title>
 
           <v-divider></v-divider>
 
+          <!-- Loading State -->
+          <div v-if="loading" class="d-flex justify-center align-center pa-8">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+              size="64"
+            ></v-progress-circular>
+          </div>
+
+          <!-- Error State -->
+          <v-alert v-else-if="dealStore.error" type="error" class="ma-4">
+            {{ dealStore.error }}
+            <template #append>
+              <v-btn
+                variant="text"
+                @click="loadDeals"
+              >
+                Retry
+              </v-btn>
+            </template>
+          </v-alert>
+
+          <!-- Empty State -->
+          <v-empty-state
+            v-else-if="totalDeals === 0"
+            icon="mdi-briefcase-off-outline"
+            title="No deals found"
+            text="There are no deals to display at the moment."
+            class="my-8"
+          >
+            <template #actions>
+              <v-btn
+                color="primary"
+                variant="elevated"
+                @click="loadDeals"
+              >
+                Refresh
+              </v-btn>
+            </template>
+          </v-empty-state>
+
           <!-- Desktop Table View -->
           <v-data-table
+            v-else
             v-show="!isMobile"
             :headers="headers"
             :items="paginatedDeals"
@@ -79,7 +121,7 @@
           </v-data-table>
 
           <!-- Desktop Pagination -->
-          <div v-show="!isMobile" class="d-flex justify-center align-center pa-4">
+          <div v-show="!isMobile && !loading && !dealStore.error && totalDeals > 0" class="d-flex justify-center align-center pa-4">
             <v-pagination
               v-model="page"
               :length="totalPagesDesktop"
@@ -88,8 +130,7 @@
           </div>
 
           <!-- Mobile Card View -->
-          <div v-show="isMobile" class="pa-4">
-            <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
+          <div v-show="isMobile && !loading && !dealStore.error && totalDeals > 0" class="pa-4">
             <DealCard
               v-for="deal in paginatedDealsForMobile"
               :key="deal.dealId"
