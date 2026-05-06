@@ -4,12 +4,12 @@
 
 **Total Time**: 24 hours (3 days × 8 hours)
 **Project**: Partner Portal Deal Management Dashboard
-**Framework**: Vue 3 + TypeScript + Tailwind CSS
+**Framework**: Vue 3 + TypeScript + Vuetify (Material Design)
 
 ## Day 1: Foundation + Core (8 hours)
 
 ### Block 1: Foundation (Hours 0-4)
-- [x] Project setup (Vue 3, Vite, Tailwind, Pinia, Router, i18n) - **DONE**
+- [ ] Project setup (Vue 3, Vite, Vuetify, Pinia, Router, i18n) - **DONE**
 - [ ] Create `/src/types/index.ts` with Deal, Status, Filter interfaces
 - [ ] Generate `/src/data/mockDeals.json` with 50-100 deals
 - [ ] Create `/src/stores/dealStore.ts` with Pinia store
@@ -18,13 +18,14 @@
 **Checkpoint**: Store working with mock data, deduplication tested
 
 ### Block 2: Core Features (Hours 4-9)
-- [ ] Create `/src/components/DealList.vue` (table + card layouts)
-- [ ] Create `/src/components/DealCard.vue` (mobile view)
+- [ ] Create `/src/components/DealList.vue` using `v-data-table`
+- [ ] Create `/src/components/DealCard.vue` using `v-card` (mobile view)
 - [ ] Create `/src/views/DealListView.vue`
-- [ ] Create `/src/views/DealDetailView.vue`
-- [ ] Add pagination (simple prev/next buttons)
+- [ ] Create `/src/views/DealDetailView.vue` with `v-card`
+- [ ] Add pagination using `v-pagination` component
 - [ ] Create `/src/services/api.ts` with mock API
-- [ ] Add loading/empty states
+- [ ] Add loading states with `v-progress-circular`
+- [ ] Add empty states with `v-empty-state` or custom message
 
 **Checkpoint**: Navigate between list and details, pagination works
 
@@ -33,15 +34,15 @@
 ## Day 2: Search, Filters & UX (8 hours)
 
 ### Block 3: Search & Filters (Hours 9-14)
-- [ ] Create `/src/components/SearchBar.vue` with debounce (300ms)
+- [ ] Create `/src/components/SearchBar.vue` using `v-text-field` with debounce (300ms)
 - [ ] Create `/src/composables/useDebounce.ts`
 - [ ] Add search logic to store (multi-field, case-insensitive, trim)
-- [ ] Create `/src/components/FilterPanel.vue`
-- [ ] Status filter (checkboxes for Open/Approved/Rejected)
-- [ ] Amount filter (min/max inputs)
-- [ ] Date range filter (HTML5 date inputs)
-- [ ] Text filters (account name, deal name)
-- [ ] Clear all filters button + active indicators
+- [ ] Create `/src/components/FilterPanel.vue` using `v-navigation-drawer`
+- [ ] Status filter using `v-select` with `multiple` and `chips`
+- [ ] Amount filter using two `v-text-field` components (min/max)
+- [ ] Date range filter using `v-date-picker` component
+- [ ] Text filters using `v-text-field` (account name, deal name)
+- [ ] Clear all filters button with `v-btn` + active indicators with `v-chip`
 
 **Checkpoint**: Search + all filters working together
 

@@ -17,7 +17,7 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 ## Assumptions
 
 - **API Contract**: Mock API data structure is simple and pre-defined
-- **Design Flexibility**: Use Tailwind's defaults; minimal custom styling
+- **Design Flexibility**: Use Vuetify Material Design components; minimal custom styling
 - **Authentication**: Simple role switcher; no real auth flow
 - **Testing Scope**: **Minimal unit tests only** for critical logic (deduplication, search)
 - **Development Environment**: Modern development tools and IDE available
@@ -26,15 +26,15 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 - **No Backend Development**: Frontend-only implementation with mocked API
 - **Single Developer**: One developer working in focused 8-12 hour blocks
 - **Code Over Polish**: Working features with good architecture over perfect UI
-- **Reuse Components**: Use Tailwind UI patterns, no custom component library
+- **Reuse Components**: Use Vuetify components (v-data-table, v-card, v-date-picker, etc.)
 
 ## 24-Hour Work Breakdown Structure
 
 ### BLOCK 1: Foundation (Hours 0-4) - Day 1 Morning
 | Task | Time | Priority | Notes |
 |------|------|----------|-------|
-| ✓ Project setup (Vue 3, Vite, Tailwind) | 2h | P0 | **COMPLETED** |
-| ✓ Configure i18n, folder structure | 0.5h | P0 | Quick setup |
+| Project setup (Vue 3, Vite, Vuetify) | 2h | P0 | **COMPLETED** |
+| Configure i18n, folder structure | 0.5h | P0 | Quick setup |
 | Create TypeScript interfaces | 0.5h | P0 | Deal, Filter, Status types |
 | Generate mock data (50-100 deals) | 0.5h | P0 | Simple JSON file |
 | Setup Pinia store + deduplication | 0.5h | P0 | Use Map for dedup by dealId |
@@ -43,36 +43,37 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 ### BLOCK 2: Core Features (Hours 4-9) - Day 1 Afternoon
 | Task | Time | Priority | Notes |
 |------|------|----------|-------|
-| Build DealList component (table + cards) | 1.5h | P0 | Desktop table, mobile cards |
-| Add pagination (simple prev/next) | 1h | P0 | Skip fancy UI, just functional |
-| Create DealDetails page + routing | 1h | P0 | Display all fields, back button |
-| Implement loading/empty states | 0.5h | P0 | Basic spinners and messages |
-| Mock API service with delays | 1h | P0 | Simulate fetch, 500 errors, timeouts |
+| Build DealList with v-data-table | 1h | P0 | Vuetify table with built-in features |
+| Create DealCard component for mobile | 0.5h | P0 | v-card for responsive view |
+| Add pagination (v-pagination) | 0.5h | P0 | Vuetify built-in pagination |
+| Create DealDetails page + routing | 1h | P0 | v-card with all fields, back button |
+| Implement loading/empty states | 0.5h | P0 | v-progress-circular, v-empty-state |
+| Mock API service with delays | 1.5h | P0 | Simulate fetch, 500 errors, timeouts |
 | **Subtotal** | **5h** | | **Total: 9h** |
 
 ### BLOCK 3: Search & Filters (Hours 9-14) - Day 2 Morning
 | Task | Time | Priority | Notes |
 |------|------|----------|-------|
-| Create SearchBar with debounce (300ms) | 1h | P1 | Use useDebouncedRef composable |
+| Create SearchBar with v-text-field + debounce | 0.5h | P1 | Vuetify text field with prepend-icon |
 | Multi-field search logic in store | 1h | P1 | Search name, account, status, trim/lowercase |
-| Build Filter panel component | 1.5h | P1 | Collapsible sidebar/drawer |
-| Status multi-select (checkboxes) | 0.5h | P1 | Simple checkboxes |
-| Amount range filter (min/max inputs) | 0.5h | P1 | Number inputs |
-| Date range filter (date inputs) | 0.5h | P1 | Native date inputs (no date picker lib) |
-| Text filters (account, deal name) | 0.5h | P1 | Contains logic |
-| Clear all filters + active indicators | 0.5h | P1 | Badge count, clear button |
+| Build Filter panel with v-navigation-drawer | 1h | P1 | Vuetify collapsible drawer |
+| Status multi-select (v-select multiple) | 0.5h | P1 | Vuetify multi-select with chips |
+| Amount range filter (v-text-field) | 0.5h | P1 | Two number inputs |
+| Date range filter (v-date-picker) | 0.5h | P1 | Vuetify date picker component |
+| Text filters (v-text-field) | 0.5h | P1 | Account, deal name filters |
+| Clear all filters + v-chip indicators | 0.5h | P1 | Chip badges, clear button |
 | **Subtotal** | **5h** | | **Total: 14h** |
 
 ### BLOCK 4: Responsive + i18n (Hours 14-18) - Day 2 Afternoon
 | Task | Time | Priority | Notes |
 |------|------|----------|-------|
-| Mobile-first layout (360px) | 1h | P1 | Cards, stacked filters, hamburger menu |
-| Tablet layout adjustments (768px) | 0.5h | P1 | 2-column, sidebar filters |
-| Desktop polish (1280px) | 0.5h | P1 | Full table, side-by-side layout |
+| Mobile layout with v-app-bar-nav-icon | 0.5h | P1 | Vuetify responsive nav drawer |
+| Use v-row/v-col for responsive grid | 0.5h | P1 | Vuetify 12-column grid system |
+| Hide/show components with v-if="$vuetify.display" | 0.5h | P1 | Vuetify breakpoint helper |
 | Configure i18n plugin | 0.5h | P1 | Setup useI18n composable |
 | Extract strings to en.json | 0.5h | P1 | All UI text |
 | Add ja, de, es translations | 1h | P1 | Use Google Translate API/DeepL |
-| Language switcher dropdown | 0.5h | P1 | Simple select in header |
+| Language switcher with v-select | 0.5h | P1 | v-select in app bar |
 | Test responsive + translations | 0.5h | P1 | Chrome DevTools responsive mode |
 | **Subtotal** | **4h** | | **Total: 18h** |
 
@@ -81,7 +82,7 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 |------|------|----------|-------|
 | **Security** | | | |
 | - Role-based access (Admin/Partner) | 0.5h | P1 | Simple role filter in store |
-| - Role switcher in header | 0.5h | P1 | Dropdown to switch roles |
+| - Role switcher with v-select in app bar | 0.5h | P1 | v-select to switch roles |
 | - XSS prevention (use v-text) | 0.5h | P1 | Review components, sanitize inputs |
 | **Real-Time Updates** | | | |
 | - Polling mechanism (60s interval) | 0.5h | P2 | setInterval in composable |
@@ -90,8 +91,8 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 | - Simple in-memory cache | 0.5h | P2 | Map with timestamps |
 | - Cache invalidation (5min TTL) | 0.5h | P2 | Clear on timeout |
 | **Error Handling** | | | |
-| - HTTP 500 + timeout handling | 0.5h | P1 | Try-catch, show error toast |
-| - Retry button | 0.5h | P1 | Simple reload action |
+| - HTTP 500 + timeout handling | 0.5h | P1 | Try-catch, show v-snackbar |
+| - Retry button with v-btn | 0.5h | P1 | Vuetify snackbar with action |
 | **Testing** | | | |
 | - Unit tests (dedup, search, filter) | 1h | P2 | Core logic only, skip UI tests |
 | **Subtotal** | **4h** | | **Total: 22h** |
@@ -139,16 +140,22 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 
 ## Strategic Shortcuts for 24-Hour Delivery
 
+### What We're Leveraging:
+1. **UI Design**: Vuetify Material Design components (professional out-of-the-box)
+2. **Data Tables**: v-data-table with built-in sorting, pagination, filtering
+3. **Forms**: v-text-field, v-select, v-checkbox (no custom components needed)
+4. **Date Picker**: v-date-picker (better than native HTML inputs)
+5. **Responsive**: Vuetify's v-row/v-col grid system + $vuetify.display
+6. **Icons**: Material Design Icons (@mdi/font) - 7000+ icons ready
+7. **Navigation**: v-navigation-drawer for mobile menu
+
 ### What We're Simplifying:
-1. **UI Design**: Tailwind defaults, minimal custom styling
-2. **Testing**: Unit tests for core logic only (dedup, search, filter)
-3. **Pagination**: Simple prev/next, skip page numbers
-4. **Date Picker**: Native HTML date inputs (no library)
-5. **Translations**: Google Translate/DeepL (good enough for demo)
-6. **Error Handling**: Basic try-catch with toast notifications
-7. **Caching**: Simple Map with timestamps (no Redis/IndexedDB)
-8. **Real-Time**: Polling every 60s (no WebSocket complexity)
-9. **AI Features**: **SKIPPED** - no time available
+1. **Testing**: Unit tests for core logic only (dedup, search, filter)
+2. **Translations**: Google Translate/DeepL (good enough for demo)
+3. **Error Handling**: v-snackbar notifications (Vuetify built-in)
+4. **Caching**: Simple Map with timestamps (no Redis/IndexedDB)
+5. **Real-Time**: Polling every 60s (no WebSocket complexity)
+6. **AI Features**: **SKIPPED** - no time available
 
 ### What We're NOT Compromising:
 1. **Architecture**: Clean component structure, Pinia store pattern
@@ -185,14 +192,15 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 
 | Decision | Time Saved | Trade-off |
 |----------|------------|-----------|
-| Skip custom date picker library | 1h | Use native HTML5 date inputs |
-| Skip fancy pagination UI | 0.5h | Simple prev/next buttons |
+| Use Vuetify instead of custom UI | 5h | Material Design (professional, not custom) |
+| v-data-table for list view | 2h | Built-in sorting, pagination, filtering |
+| v-date-picker for dates | 1h | Better than native HTML5 inputs |
 | Skip E2E tests | 4h | Unit tests for core logic only |
 | Use Google Translate | 3h | May have minor translation issues |
-| Skip perfect mobile polish | 2h | Functional but not pixel-perfect |
+| Vuetify responsive grid | 1.5h | v-row/v-col handles breakpoints |
 | Skip AI features entirely | 15h | Bonus points lost, but core complete |
-| Simple toast notifications | 1h | No fancy notification library |
-| **TOTAL SAVED** | **26.5h** | **Enables 24h delivery** |
+| v-snackbar for notifications | 0.5h | Vuetify built-in component |
+| **TOTAL SAVED** | **32h** | **Enables 24h delivery** |
 
 ## Evaluation Score Optimization
 
