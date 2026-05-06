@@ -114,11 +114,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
 import DealCard from '@/components/DealCard.vue'
 
+const router = useRouter()
 const { mobile } = useDisplay()
 const dealStore = useDealStore()
 
@@ -193,8 +195,7 @@ function formatDate(dateString: string): string {
 }
 
 function viewDeal(dealId: string): void {
-  console.log('View deal:', dealId)
-  // Will be implemented in later blocks
+  router.push(`/deals/${dealId}`)
 }
 
 // Lifecycle
