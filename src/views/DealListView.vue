@@ -18,9 +18,10 @@
           <v-data-table
             v-show="!isMobile"
             :headers="headers"
-            :items="deals"
+            :items="paginatedDeals"
             :loading="loading"
-            :items-per-page="10"
+            :items-per-page="itemsPerPage"
+            hide-default-footer
             class="elevation-0 deals-table"
             item-value="dealId"
           >
@@ -77,6 +78,15 @@
             </template>
           </v-data-table>
 
+          <!-- Desktop Pagination -->
+          <div v-show="!isMobile" class="d-flex justify-center align-center pa-4">
+            <v-pagination
+              v-model="page"
+              :length="totalPagesDesktop"
+              :total-visible="7"
+            ></v-pagination>
+          </div>
+
           <!-- Mobile Card View -->
           <div v-show="isMobile" class="pa-4">
             <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
@@ -113,6 +123,8 @@ const { mobile } = useDisplay()
 const dealStore = useDealStore()
 
 // State
+const page = ref(1)
+const itemsPerPage = 10
 const mobilePage = ref(1)
 const itemsPerPageMobile = 10
 
@@ -121,6 +133,14 @@ const isMobile = computed(() => mobile.value)
 const deals = computed(() => dealStore.allDeals)
 const loading = computed(() => dealStore.loading)
 const totalDeals = computed(() => deals.value.length)
+
+// Desktop pagination
+const totalPagesDesktop = computed(() => Math.ceil(totalDeals.value / itemsPerPage))
+const paginatedDeals = computed(() => {
+  const start = (page.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return deals.value.slice(start, end)
+})
 
 // Mobile pagination
 const totalPages = computed(() => Math.ceil(totalDeals.value / itemsPerPageMobile))
