@@ -9,7 +9,7 @@
 ## Day 1: Foundation + Core (8 hours)
 
 ### Block 1: Foundation (Hours 0-4)
-- [ ] Project setup (Vue 3, Vite, Vuetify, Pinia, Router, i18n) - **DONE**
+- [ ] Project setup (Vue 3, Vite, Vuetify, Pinia, Router, i18n)
 - [ ] Create `/src/types/index.ts` with Deal, Status, Filter interfaces
 - [ ] Generate `/src/data/mockDeals.json` with 50-100 deals
 - [ ] Create `/src/stores/dealStore.ts` with Pinia store
