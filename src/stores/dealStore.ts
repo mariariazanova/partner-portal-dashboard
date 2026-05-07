@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import type { Deal, DealFilters, DealStatus } from '@/types'
 import { useAuthStore } from './authStore'
 import { websocketService } from '@/services/websocketService'
+import { invalidateAllDealsCache } from '@/services/dealService'
 
 /**
  * Deal Store with deduplication logic
@@ -215,6 +216,11 @@ export const useDealStore = defineStore('deals', () => {
     // Subscribe to deal updates
     websocketService.onMessage((updatedDeals) => {
       console.log('[DealStore] Received real-time updates:', updatedDeals.length, 'deals')
+
+      // Invalidate cache since we have new data
+      // This ensures subsequent API calls fetch fresh data
+      invalidateAllDealsCache()
+
       // Add deals with automatic deduplication
       addDeals(updatedDeals)
     })

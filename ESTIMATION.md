@@ -85,12 +85,12 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 | - Role switcher with v-select in app bar | 0.5h | P1 | v-select to switch roles |
 | - XSS prevention (use v-text) | 0.5h | P1 | Review components, sanitize inputs |
 | **Real-Time Updates** | | | |
-| - **WebSocket-based real-time updates** | 1h | P1 | **Mock WebSocket with auto-reconnect (replaces polling)** |
+| - WebSocket-based real-time updates** | 1h | P1 | Mock WebSocket with auto-reconnect (replaces polling) |
 | - Connection status indicator | 0.25h | P1 | Wi-Fi icon in app bar showing connection status |
 | - Merge with deduplication | (included) | P2 | Already implemented |
 | **Caching** | | | |
 | - Simple in-memory cache | 0.5h | P2 | Map with timestamps |
-| - Cache invalidation (5min TTL) | 0.5h | P2 | Clear on timeout |
+| - Cache invalidation (5min TTL) | 0.5h | P2 | Auto-clear on timeout + WebSocket invalidation |
 | **Error Handling** | | | |
 | - HTTP 500 + timeout handling | 0.5h | P1 | Try-catch, show v-snackbar |
 | - Retry button with v-btn | 0.5h | P1 | Vuetify snackbar with action |
