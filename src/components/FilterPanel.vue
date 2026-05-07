@@ -205,11 +205,12 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed, onMounted, onUnmounted, watch, watchEffect} from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, watchEffect } from 'vue'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
+import { sanitizeInput, sanitizeNumberInput } from '@/utils/sanitize'
 
 /**
  * FilterPanel Component
@@ -222,6 +223,7 @@ import { DealStatus } from '@/types'
  * - Clear all filters button
  * - Active filter chip indicators
  * - Responsive (drawer on mobile, permanent on desktop)
+ * - XSS Prevention: Sanitizes all text inputs
  */
 
 interface Props {
@@ -419,24 +421,14 @@ const activeFilterChips = computed(() => {
   return chips
 })
 
-// Handle amount min change
+// Handle amount min change with sanitization
 function handleAmountMinChange(value: string | number | null) {
-  if (value === null || value === '' || value === undefined) {
-    localFilters.value.amountMin = null
-  } else {
-    const numValue = Number(value)
-    localFilters.value.amountMin = isNaN(numValue) ? null : numValue
-  }
+  localFilters.value.amountMin = sanitizeNumberInput(value)
 }
 
-// Handle amount max change
+// Handle amount max change with sanitization
 function handleAmountMaxChange(value: string | number | null) {
-  if (value === null || value === '' || value === undefined) {
-    localFilters.value.amountMax = null
-  } else {
-    const numValue = Number(value)
-    localFilters.value.amountMax = isNaN(numValue) ? null : numValue
-  }
+  localFilters.value.amountMax = sanitizeNumberInput(value)
 }
 
 // Handle date from change
@@ -478,7 +470,7 @@ function handleClearAll() {
   dateToPicker.value = null
 }
 
-// Watch local filters and update store
+// Watch local filters and update store (with sanitization)
 watch(
   localFilters,
   (newFilters) => {
@@ -488,8 +480,9 @@ watch(
     dealStore.setStatusFilter(newFilters.statusFilter)
     dealStore.setAmountRange(newFilters.amountMin, newFilters.amountMax)
     dealStore.setDateRange(newFilters.dateFrom, newFilters.dateTo)
-    dealStore.setAccountNameFilter(newFilters.accountNameFilter)
-    dealStore.setDealNameFilter(newFilters.dealNameFilter)
+    // Sanitize text inputs to prevent XSS
+    dealStore.setAccountNameFilter(sanitizeInput(newFilters.accountNameFilter))
+    dealStore.setDealNameFilter(sanitizeInput(newFilters.dealNameFilter))
 
     // Reset flag in next tick
     setTimeout(() => {

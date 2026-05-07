@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDealStore } from '@/stores/dealStore'
+import { sanitizeSearchQuery } from '@/utils/sanitize'
 
 /**
  * SearchBar Component
@@ -23,6 +24,7 @@ import { useDealStore } from '@/stores/dealStore'
  * - Debounced search input (300ms delay)
  * - Integrates with store's multi-field search
  * - Material Design text field with search icon
+ * - XSS Prevention: Sanitizes search input
  */
 
 const dealStore = useDealStore()
@@ -34,6 +36,7 @@ let debounceTimeout: ReturnType<typeof setTimeout> | null = null
 /**
  * Handle search input with debounce
  * Waits 300ms after user stops typing before triggering search
+ * Sanitizes input to prevent XSS attacks
  */
 function onSearchChange(value: string | null) {
   // Clear existing timeout
@@ -43,7 +46,9 @@ function onSearchChange(value: string | null) {
 
   // Set new timeout for debounced search
   debounceTimeout = setTimeout(() => {
-    dealStore.setSearch(value || '')
+    // Sanitize input before setting to store
+    const sanitized = sanitizeSearchQuery(value || '')
+    dealStore.setSearch(sanitized)
   }, 300)
 }
 
