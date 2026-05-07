@@ -16,24 +16,30 @@
 
           <!-- Search and Filter Bar -->
           <v-card-text v-if="!loading && !dealStore.error && totalDeals > 0">
-            <div class="d-flex gap-2 align-center">
-              <SearchBar class="flex-grow-1" />
-              <v-btn
-                :color="dealStore.activeFilterCount > 0 ? 'primary' : 'default'"
-                variant="outlined"
-                prepend-icon="mdi-filter-variant"
-                @click="filterDrawer = !filterDrawer"
-              >
-                Filters
-                <v-badge
-                  v-if="dealStore.activeFilterCount > 0"
-                  :content="dealStore.activeFilterCount"
-                  color="primary"
-                  inline
-                  class="ml-2"
-                />
-              </v-btn>
-            </div>
+            <v-row dense>
+              <v-col cols="12" sm="9" md="10">
+                <SearchBar />
+              </v-col>
+              <v-col cols="12" sm="3" md="2">
+                <v-btn
+                  :color="dealStore.activeFilterCount > 0 ? 'primary' : 'default'"
+                  variant="outlined"
+                  :prepend-icon="isMobile ? undefined : 'mdi-filter-variant'"
+                  :icon="isMobile ? 'mdi-filter-variant' : undefined"
+                  @click="filterDrawer = !filterDrawer"
+                  block
+                >
+                  <span v-if="!isMobile">Filters</span>
+                  <v-badge
+                    v-if="dealStore.activeFilterCount > 0"
+                    :content="dealStore.activeFilterCount"
+                    color="primary"
+                    :inline="!isMobile"
+                    :floating="isMobile"
+                  />
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-card-text>
 
           <v-divider v-if="!loading && !dealStore.error && totalDeals > 0"></v-divider>
@@ -210,7 +216,7 @@ import SearchBar from '@/components/SearchBar.vue'
 import FilterPanel from '@/components/FilterPanel.vue'
 
 const router = useRouter()
-const { mobile } = useDisplay()
+const { mobile, lgAndUp } = useDisplay()
 const dealStore = useDealStore()
 
 // State
@@ -218,7 +224,7 @@ const page = ref(1)
 const itemsPerPage = 10
 const mobilePage = ref(1)
 const itemsPerPageMobile = 10
-const filterDrawer = ref(true) // Open by default on desktop
+const filterDrawer = ref(lgAndUp.value) // Open by default on large screens (1280px+), closed on mobile/tablet
 
 // Computed
 const isMobile = computed(() => mobile.value)

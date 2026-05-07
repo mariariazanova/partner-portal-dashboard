@@ -2,10 +2,12 @@
   <v-navigation-drawer
     v-model="isOpen"
     :location="mobile ? 'bottom' : 'right'"
-    :temporary="mobile"
-    :permanent="!mobile"
+    :temporary="!lgAndUp"
+    :permanent="lgAndUp"
     width="400"
+    :height="mobile ? '75vh' : undefined"
     class="filter-panel"
+    :class="{ 'mobile-drawer': mobile }"
   >
     <v-card flat>
       <!-- Header -->
@@ -203,7 +205,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import {ref, computed, onMounted, onUnmounted, watch, watchEffect} from 'vue'
 import { useDisplay } from 'vuetify'
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
@@ -236,10 +238,46 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const dealStore = useDealStore()
-const { mobile } = useDisplay()
+const { mobile, lgAndUp } = useDisplay()
 
 // Local drawer state
 const isOpen = ref(props.modelValue)
+
+const width = ref(window.innerWidth)
+const height = ref(window.innerHeight)
+
+const updateSize = () => {
+  width.value = window.innerWidth
+  height.value = window.innerHeight
+}
+
+onMounted(() => {
+  window.addEventListener('resize', updateSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateSize)
+})
+
+watch(mobile, (newValue) => {
+  console.log('is mobile:', newValue)
+})
+
+watch(width, (newWidth) => {
+  console.log('screen width:', newWidth)
+})
+
+watch(lgAndUp, (val) => {
+  console.log('lgAndUp:', val)
+})
+
+watchEffect(() => {
+  console.log({
+    width: width.value,
+    lgAndUp: lgAndUp.value,
+    breakpoint: name.value,
+  })
+})
 
 // Flag to prevent store watcher from overwriting local changes
 let updatingFromLocal = false
@@ -498,6 +536,13 @@ watch(
 <style scoped>
 .filter-panel {
   border-left: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mobile-drawer {
+  border-left: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 16px 16px 0 0;
+  overflow-y: auto;
 }
 
 .gap-2 {

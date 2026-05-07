@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
+import { useDisplay } from 'vuetify'
 
 const router = useRouter()
+const { mobile } = useDisplay()
 const drawer = ref(false)
 
 const navItems = [
@@ -18,12 +20,15 @@ function navigateTo(route: string) {
 
 <template>
   <v-app>
-    <v-app-bar color="primary" prominent>
+    <v-app-bar color="primary" :prominent="!mobile">
       <v-app-bar-nav-icon
         color="white"
         @click="drawer = !drawer"
       ></v-app-bar-nav-icon>
-      <v-toolbar-title>Partner Portal - Deal Management</v-toolbar-title>
+      <v-toolbar-title>
+        <span v-if="mobile">Partner Portal</span>
+        <span v-else>Partner Portal - Deal Management</span>
+      </v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" temporary>
