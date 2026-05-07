@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
 import { useDealStore } from '@/stores/dealStore'
 import { UserRole } from '@/types'
+import GlobalNotification from '@/components/GlobalNotification.vue'
 
 const router = useRouter()
 const { mobile } = useDisplay()
@@ -117,6 +118,9 @@ function changeRole(newRole: UserRole) {
         <RouterView />
       </v-container>
     </v-main>
+
+    <!-- Global Notification Snackbar -->
+    <GlobalNotification />
   </v-app>
 </template>
 

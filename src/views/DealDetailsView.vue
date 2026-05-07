@@ -26,17 +26,28 @@
         </v-card>
 
         <!-- Error State -->
-        <v-alert v-else-if="error" type="error" class="mb-4">
-          {{ error }}
-          <template #append>
-            <v-btn
-              variant="text"
-              @click="goBack"
-            >
-              Back to Deals
-            </v-btn>
-          </template>
-        </v-alert>
+        <v-card v-else-if="error">
+          <v-card-text class="d-flex align-center justify-center pa-8">
+            <div class="text-center">
+              <v-icon icon="mdi-alert-circle-outline" size="48" color="error" class="mb-4" />
+              <div class="text-body-1 mb-4">{{ $t(error) }}</div>
+              <v-btn
+                color="primary"
+                variant="elevated"
+                @click="loadDealData"
+                class="mr-2"
+              >
+                {{ $t('common.retry') }}
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                @click="goBack"
+              >
+                {{ $t('dealDetails.backToDeals') }}
+              </v-btn>
+            </div>
+          </v-card-text>
+        </v-card>
 
         <!-- Deal Not Found -->
         <v-empty-state
@@ -180,10 +191,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
 import type { Deal } from '@/types'
+import { useNotification } from '@/composables/useNotification'
 
 const route = useRoute()
 const router = useRouter()
 const dealStore = useDealStore()
+const notification = useNotification()
 
 // State
 const loading = ref(true)
@@ -232,16 +245,28 @@ function goBack(): void {
 
 // Lifecycle
 onMounted(async () => {
+  await loadDealData()
+})
+
+async function loadDealData() {
+  // Hide any existing notifications when retrying
+  notification.hide()
+
   // If store is empty, load deals
   if (dealStore.allDeals.length === 0) {
+    loading.value = true
     error.value = null
     try {
       const { fetchAllDeals } = await import('@/services/dealService')
       const deals = await fetchAllDeals()
       dealStore.setDeals(deals)
     } catch (err) {
-      error.value = 'Failed to load deal details'
-      console.error('Error loading deals:', err)
+      // Store translation key, not translated string
+      error.value = 'errors.loadDealDetails'
+      console.error('[DealDetailsView] Error loading deals:', err)
+
+      // Show error notification
+      notification.showErrorFromException(err)
     } finally {
       loading.value = false
     }
@@ -251,5 +276,5 @@ onMounted(async () => {
       loading.value = false
     }, 300)
   }
-})
+}
 </script>

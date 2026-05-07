@@ -16,6 +16,14 @@
     "clearAll": "Limpiar todo",
     "viewDetails": "Ver detalles"
   },
+  "errors": {
+    "timeout": "Tiempo de espera agotado. Por favor, verifique su conexión e inténtelo de nuevo.",
+    "serverError": "Error del servidor. Por favor, inténtelo más tarde.",
+    "networkError": "Error de red. Por favor, verifique su conexión.",
+    "unexpected": "Ha ocurrido un error inesperado",
+    "loadDeals": "Error al cargar las ofertas",
+    "loadDealDetails": "Error al cargar los detalles de la oferta"
+  },
   "search": {
     "placeholder": "Buscar por nombre, cuenta, estado o contacto..."
   },

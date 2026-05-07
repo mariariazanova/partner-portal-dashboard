@@ -16,6 +16,14 @@
     "clearAll": "Clear All",
     "viewDetails": "View Details"
   },
+  "errors": {
+    "timeout": "Request timed out. Please check your connection and try again.",
+    "serverError": "Server error. Please try again later.",
+    "networkError": "Network error. Please check your connection.",
+    "unexpected": "An unexpected error occurred",
+    "loadDeals": "Failed to load deals",
+    "loadDealDetails": "Failed to load deal details"
+  },
   "search": {
     "placeholder": "Search deals by name, account, status, or contact..."
   },

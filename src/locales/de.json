@@ -16,6 +16,14 @@
     "clearAll": "Alle löschen",
     "viewDetails": "Details anzeigen"
   },
+  "errors": {
+    "timeout": "Zeitüberschreitung der Anfrage. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "unexpected": "Ein unerwarteter Fehler ist aufgetreten",
+    "loadDeals": "Deals konnten nicht geladen werden",
+    "loadDealDetails": "Deal-Details konnten nicht geladen werden"
+  },
   "search": {
     "placeholder": "Nach Name, Konto, Status oder Kontakt suchen..."
   },

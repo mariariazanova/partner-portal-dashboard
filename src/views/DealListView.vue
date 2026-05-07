@@ -54,17 +54,19 @@
           </div>
 
           <!-- Error State -->
-          <v-alert v-else-if="dealStore.error" type="error" class="ma-4">
-            {{ dealStore.error }}
-            <template #append>
+          <v-card-text v-else-if="dealStore.error" class="d-flex align-center justify-center pa-8">
+            <div class="text-center">
+              <v-icon icon="mdi-alert-circle-outline" size="48" color="error" class="mb-4" />
+              <div class="text-body-1 mb-4">{{ $t(dealStore.error) }}</div>
               <v-btn
-                variant="text"
+                color="primary"
+                variant="elevated"
                 @click="loadDeals"
               >
                 {{ $t('common.retry') }}
               </v-btn>
-            </template>
-          </v-alert>
+            </div>
+          </v-card-text>
 
           <!-- Empty State - No Deals at All -->
           <v-empty-state
@@ -215,11 +217,13 @@ import { DealStatus } from '@/types'
 import DealCard from '@/components/DealCard.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import FilterPanel from '@/components/FilterPanel.vue'
+import { useNotification } from '@/composables/useNotification'
 
 const router = useRouter()
 const { mobile, lgAndUp } = useDisplay()
 const { t } = useI18n()
 const dealStore = useDealStore()
+const notification = useNotification()
 
 // State
 const page = ref(1)
@@ -311,15 +315,23 @@ onUnmounted(() => {
 })
 
 async function loadDeals() {
+  // Hide any existing notifications when retrying
+  notification.hide()
+
   dealStore.setLoading(true)
   dealStore.setError(null)
   try {
     const { fetchAllDeals } = await import('@/services/dealService')
     const deals = await fetchAllDeals()
     dealStore.setDeals(deals)
+    dealStore.setError(null) // Clear any previous errors
   } catch (error) {
-    dealStore.setError('Failed to load deals')
-    console.error('Error loading deals:', error)
+    // Store translation key, not translated string
+    dealStore.setError('errors.loadDeals')
+    console.error('[DealListView] Error loading deals:', error)
+
+    // Show error notification
+    notification.showErrorFromException(error)
   } finally {
     dealStore.setLoading(false)
   }
