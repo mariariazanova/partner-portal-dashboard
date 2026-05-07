@@ -85,7 +85,8 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 | - Role switcher with v-select in app bar | 0.5h | P1 | v-select to switch roles |
 | - XSS prevention (use v-text) | 0.5h | P1 | Review components, sanitize inputs |
 | **Real-Time Updates** | | | |
-| - Polling mechanism (60s interval) | 0.5h | P2 | setInterval in composable |
+| - **WebSocket-based real-time updates** | 1h | P1 | **Mock WebSocket with auto-reconnect (replaces polling)** |
+| - Connection status indicator | 0.25h | P1 | Wi-Fi icon in app bar showing connection status |
 | - Merge with deduplication | (included) | P2 | Already implemented |
 | **Caching** | | | |
 | - Simple in-memory cache | 0.5h | P2 | Map with timestamps |
@@ -130,7 +131,7 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 | ✅ Responsive Design | 2h | Mandatory | 360/768/1280px |
 | ✅ i18n (4 languages) | 2h | Mandatory | EN, JA, DE, ES |
 | ✅ Security | 1.5h | Mandatory | XSS, roles, sanitization |
-| ✅ Real-Time Updates | 1h | Mandatory | Polling approach |
+| ✅ Real-Time Updates | 1h | Mandatory | WebSocket approach |
 | ✅ Caching | 1h | Mandatory | In-memory with TTL |
 | ✅ Error Handling | 1h | Mandatory | 500, timeout, retry |
 | ✅ Testing | 1h | Mandatory | Unit tests for logic |
@@ -154,7 +155,7 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 2. **Translations**: Google Translate/DeepL (good enough for demo)
 3. **Error Handling**: v-snackbar notifications (Vuetify built-in)
 4. **Caching**: Simple Map with timestamps (no Redis/IndexedDB)
-5. **Real-Time**: Polling every 60s (no WebSocket complexity)
+5. **Real-Time**: WebSocket with auto-reconnect (mock implementation)
 6. **AI Features**: **SKIPPED** - no time available
 
 ### What We're NOT Compromising:

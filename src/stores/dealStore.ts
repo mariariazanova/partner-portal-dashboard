@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Deal, DealFilters, DealStatus } from '@/types'
 import { useAuthStore } from './authStore'
+import { websocketService } from '@/services/websocketService'
 
 /**
  * Deal Store with deduplication logic
@@ -14,11 +15,14 @@ import { useAuthStore } from './authStore'
  * - Filter by status, amount range, date range, and specific fields
  * - Debounced search integration
  *
- * Block 5:
  * - Role-based filtering (Admin sees all, Partner sees only assigned deals)
+ * - WebSocket-based real-time updates
  */
 export const useDealStore = defineStore('deals', () => {
   const authStore = useAuthStore()
+
+  // WebSocket connection status
+  const wsConnected = ref(false)
   // State
   const deals = ref<Map<string, Deal>>(new Map()) // Using Map for O(1) deduplication
   const loading = ref(false)
@@ -201,6 +205,38 @@ export const useDealStore = defineStore('deals', () => {
     deals.value.clear()
   }
 
+  // WebSocket Real-Time Updates
+  /**
+   * Initialize WebSocket connection for real-time updates
+   */
+  function initializeWebSocket() {
+    console.log('[DealStore] Initializing WebSocket connection...')
+
+    // Subscribe to deal updates
+    websocketService.onMessage((updatedDeals) => {
+      console.log('[DealStore] Received real-time updates:', updatedDeals.length, 'deals')
+      // Add deals with automatic deduplication
+      addDeals(updatedDeals)
+    })
+
+    // Subscribe to connection status
+    websocketService.onStatusChange((connected) => {
+      console.log('[DealStore] WebSocket connection status:', connected)
+      wsConnected.value = connected
+    })
+
+    // Connect to WebSocket
+    websocketService.connect()
+  }
+
+  /**
+   * Disconnect WebSocket
+   */
+  function disconnectWebSocket() {
+    websocketService.disconnect()
+    wsConnected.value = false
+  }
+
   // Filter Actions
   /**
    * Set global search query
@@ -280,6 +316,7 @@ export const useDealStore = defineStore('deals', () => {
     loading,
     error,
     filters,
+    wsConnected,
 
     // Getters
     allDeals,
@@ -293,6 +330,10 @@ export const useDealStore = defineStore('deals', () => {
     setLoading,
     setError,
     clearDeals,
+
+    // WebSocket Actions
+    initializeWebSocket,
+    disconnectWebSocket,
 
     // Filter Actions
     setSearch,

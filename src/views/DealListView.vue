@@ -206,7 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
@@ -300,6 +300,14 @@ function viewDeal(dealId: string): void {
 // Lifecycle
 onMounted(async () => {
   await loadDeals()
+
+  // Initialize WebSocket for real-time updates
+  dealStore.initializeWebSocket()
+})
+
+onUnmounted(() => {
+  // Disconnect WebSocket when component unmounts
+  dealStore.disconnectWebSocket()
 })
 
 async function loadDeals() {

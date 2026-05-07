@@ -4,12 +4,14 @@ import { RouterView, useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
+import { useDealStore } from '@/stores/dealStore'
 import { UserRole } from '@/types'
 
 const router = useRouter()
 const { mobile } = useDisplay()
 const { t, locale } = useI18n()
 const authStore = useAuthStore()
+const dealStore = useDealStore()
 const drawer = ref(false)
 
 const navItems = computed(() => [
@@ -57,6 +59,18 @@ function changeRole(newRole: UserRole) {
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
+
+      <!-- WebSocket Connection Status -->
+      <v-tooltip :text="dealStore.wsConnected ? 'Real-time updates active' : 'Connecting...'" location="bottom">
+        <template #activator="{ props }">
+          <v-icon
+            v-bind="props"
+            :icon="dealStore.wsConnected ? 'mdi-wifi' : 'mdi-wifi-off'"
+            :color="dealStore.wsConnected ? 'success' : 'warning'"
+            class="mr-3"
+          />
+        </template>
+      </v-tooltip>
 
       <!-- Role Switcher -->
       <v-select
