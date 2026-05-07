@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Deal, DealFilters, DealStatus } from '@/types'
+import { useAuthStore } from './authStore'
 
 /**
  * Deal Store with deduplication logic
@@ -12,8 +13,12 @@ import type { Deal, DealFilters, DealStatus } from '@/types'
  * - Multi-field search (dealName, accountName, status, description, contactPerson)
  * - Filter by status, amount range, date range, and specific fields
  * - Debounced search integration
+ *
+ * Block 5:
+ * - Role-based filtering (Admin sees all, Partner sees only assigned deals)
  */
 export const useDealStore = defineStore('deals', () => {
+  const authStore = useAuthStore()
   // State
   const deals = ref<Map<string, Deal>>(new Map()) // Using Map for O(1) deduplication
   const loading = ref(false)
@@ -44,9 +49,17 @@ export const useDealStore = defineStore('deals', () => {
   /**
    * Get filtered deals based on current filter state
    * Applies multi-field search and all active filters
+   * Block 5: Also applies role-based filtering
    */
   const filteredDeals = computed(() => {
     let result = allDeals.value
+
+    // Apply role-based filtering
+    // Partners can only see deals assigned to them
+    // Admins can see all deals
+    if (authStore.isPartner()) {
+      result = result.filter((deal) => deal.assignedTo === authStore.partnerId)
+    }
 
     // Apply global search across multiple fields
     if (filters.value.search) {
