@@ -8,11 +8,35 @@
             Deals
             <v-spacer></v-spacer>
             <v-chip v-if="totalDeals > 0 && !loading" color="primary" variant="outlined">
-              {{ totalDeals }} deals
+              {{ filteredDeals.length }} / {{ totalDeals }} deals
             </v-chip>
           </v-card-title>
 
           <v-divider></v-divider>
+
+          <!-- Search and Filter Bar -->
+          <v-card-text v-if="!loading && !dealStore.error && totalDeals > 0">
+            <div class="d-flex gap-2 align-center">
+              <SearchBar class="flex-grow-1" />
+              <v-btn
+                :color="dealStore.activeFilterCount > 0 ? 'primary' : 'default'"
+                variant="outlined"
+                prepend-icon="mdi-filter-variant"
+                @click="filterDrawer = !filterDrawer"
+              >
+                Filters
+                <v-badge
+                  v-if="dealStore.activeFilterCount > 0"
+                  :content="dealStore.activeFilterCount"
+                  color="primary"
+                  inline
+                  class="ml-2"
+                />
+              </v-btn>
+            </div>
+          </v-card-text>
+
+          <v-divider v-if="!loading && !dealStore.error && totalDeals > 0"></v-divider>
 
           <!-- Loading State -->
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
@@ -36,7 +60,7 @@
             </template>
           </v-alert>
 
-          <!-- Empty State -->
+          <!-- Empty State - No Deals at All -->
           <v-empty-state
             v-else-if="totalDeals === 0"
             icon="mdi-briefcase-off-outline"
@@ -51,6 +75,25 @@
                 @click="loadDeals"
               >
                 Refresh
+              </v-btn>
+            </template>
+          </v-empty-state>
+
+          <!-- Empty State - Filtered Results -->
+          <v-empty-state
+            v-else-if="filteredDeals.length === 0"
+            icon="mdi-filter-off-outline"
+            title="No deals match filters"
+            text="Try adjusting your search or filter criteria."
+            class="my-8"
+          >
+            <template #actions>
+              <v-btn
+                color="primary"
+                variant="elevated"
+                @click="dealStore.clearFilters"
+              >
+                Clear Filters
               </v-btn>
             </template>
           </v-empty-state>
@@ -150,6 +193,9 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Filter Panel -->
+    <FilterPanel v-model="filterDrawer" />
   </v-container>
 </template>
 
@@ -160,6 +206,8 @@ import { useDisplay } from 'vuetify'
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
 import DealCard from '@/components/DealCard.vue'
+import SearchBar from '@/components/SearchBar.vue'
+import FilterPanel from '@/components/FilterPanel.vue'
 
 const router = useRouter()
 const { mobile } = useDisplay()
@@ -170,27 +218,29 @@ const page = ref(1)
 const itemsPerPage = 10
 const mobilePage = ref(1)
 const itemsPerPageMobile = 10
+const filterDrawer = ref(true) // Open by default on desktop
 
 // Computed
 const isMobile = computed(() => mobile.value)
 const deals = computed(() => dealStore.allDeals)
+const filteredDeals = computed(() => dealStore.filteredDeals)
 const loading = computed(() => dealStore.loading)
 const totalDeals = computed(() => deals.value.length)
 
 // Desktop pagination
-const totalPagesDesktop = computed(() => Math.ceil(totalDeals.value / itemsPerPage))
+const totalPagesDesktop = computed(() => Math.ceil(filteredDeals.value.length / itemsPerPage))
 const paginatedDeals = computed(() => {
   const start = (page.value - 1) * itemsPerPage
   const end = start + itemsPerPage
-  return deals.value.slice(start, end)
+  return filteredDeals.value.slice(start, end)
 })
 
 // Mobile pagination
-const totalPages = computed(() => Math.ceil(totalDeals.value / itemsPerPageMobile))
+const totalPages = computed(() => Math.ceil(filteredDeals.value.length / itemsPerPageMobile))
 const paginatedDealsForMobile = computed(() => {
   const start = (mobilePage.value - 1) * itemsPerPageMobile
   const end = start + itemsPerPageMobile
-  return deals.value.slice(start, end)
+  return filteredDeals.value.slice(start, end)
 })
 
 // Table headers
@@ -261,6 +311,10 @@ async function loadDeals() {
 </script>
 
 <style scoped>
+.gap-2 {
+  gap: 8px;
+}
+
 .text-truncate-cell {
   max-width: 100%;
   overflow: hidden;

@@ -1,20 +1,35 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Deal } from '@/types'
+import type { Deal, DealFilters, DealStatus } from '@/types'
 
 /**
  * Deal Store with deduplication logic
  *
- * Block 1 Implementation:
  * - Store deals in a Map for O(1) deduplication by dealId
  * - Keep most recently updated record when duplicates occur
  * - Basic CRUD operations
+ *
+ * - Multi-field search (dealName, accountName, status, description, contactPerson)
+ * - Filter by status, amount range, date range, and specific fields
+ * - Debounced search integration
  */
 export const useDealStore = defineStore('deals', () => {
   // State
   const deals = ref<Map<string, Deal>>(new Map()) // Using Map for O(1) deduplication
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  // Filter state
+  const filters = ref<DealFilters>({
+    search: '',
+    statusFilter: [],
+    amountMin: null,
+    amountMax: null,
+    dateFrom: null,
+    dateTo: null,
+    accountNameFilter: '',
+    dealNameFilter: '',
+  })
 
   // Getters
   /**
@@ -24,6 +39,88 @@ export const useDealStore = defineStore('deals', () => {
     return Array.from(deals.value.values()).sort((a, b) => {
       return new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
     })
+  })
+
+  /**
+   * Get filtered deals based on current filter state
+   * Applies multi-field search and all active filters
+   */
+  const filteredDeals = computed(() => {
+    let result = allDeals.value
+
+    // Apply global search across multiple fields
+    if (filters.value.search) {
+      const searchLower = filters.value.search.toLowerCase().trim()
+      result = result.filter((deal) => {
+        return (
+          deal.dealName.toLowerCase().includes(searchLower) ||
+          deal.accountName.toLowerCase().includes(searchLower) ||
+          deal.status.toLowerCase().includes(searchLower) ||
+          (deal.description && deal.description.toLowerCase().includes(searchLower)) ||
+          (deal.contactPerson && deal.contactPerson.toLowerCase().includes(searchLower))
+        )
+      })
+    }
+
+    // Apply status filter
+    if (filters.value.statusFilter.length > 0) {
+      result = result.filter((deal) => filters.value.statusFilter.includes(deal.status))
+    }
+
+    // Apply amount range filter
+    if (filters.value.amountMin !== null && filters.value.amountMin !== undefined) {
+      const minAmount = Number(filters.value.amountMin)
+      result = result.filter((deal) => Number(deal.amount) >= minAmount)
+    }
+    if (filters.value.amountMax !== null && filters.value.amountMax !== undefined) {
+      const maxAmount = Number(filters.value.amountMax)
+      result = result.filter((deal) => Number(deal.amount) <= maxAmount)
+    }
+
+    // Apply date range filter
+    if (filters.value.dateFrom) {
+      const dateFrom = new Date(filters.value.dateFrom).getTime()
+      result = result.filter((deal) => {
+        return new Date(deal.createdDate).getTime() >= dateFrom
+      })
+    }
+    if (filters.value.dateTo) {
+      const dateTo = new Date(filters.value.dateTo).getTime()
+      result = result.filter((deal) => {
+        return new Date(deal.createdDate).getTime() <= dateTo
+      })
+    }
+
+    // Apply account name filter
+    if (filters.value.accountNameFilter) {
+      const accountFilter = filters.value.accountNameFilter.toLowerCase().trim()
+      result = result.filter((deal) =>
+        deal.accountName.toLowerCase().includes(accountFilter)
+      )
+    }
+
+    // Apply deal name filter
+    if (filters.value.dealNameFilter) {
+      const dealFilter = filters.value.dealNameFilter.toLowerCase().trim()
+      result = result.filter((deal) => deal.dealName.toLowerCase().includes(dealFilter))
+    }
+
+    return result
+  })
+
+  /**
+   * Count active filters (excluding search)
+   */
+  const activeFilterCount = computed(() => {
+    let count = 0
+    if (filters.value.statusFilter.length > 0) count++
+    if (filters.value.amountMin !== null && filters.value.amountMin !== undefined) count++
+    if (filters.value.amountMax !== null && filters.value.amountMax !== undefined) count++
+    if (filters.value.dateFrom) count++
+    if (filters.value.dateTo) count++
+    if (filters.value.accountNameFilter) count++
+    if (filters.value.dealNameFilter) count++
+    return count
   })
 
   // Actions
@@ -91,14 +188,90 @@ export const useDealStore = defineStore('deals', () => {
     deals.value.clear()
   }
 
+  // Filter Actions
+  /**
+   * Set global search query
+   */
+  function setSearch(search: string) {
+    filters.value.search = search
+  }
+
+  /**
+   * Set status filter
+   */
+  function setStatusFilter(statuses: DealStatus[]) {
+    filters.value.statusFilter = statuses
+  }
+
+  /**
+   * Set amount range filter
+   */
+  function setAmountRange(min: number | null, max: number | null) {
+    // Ensure values are proper numbers and handle edge cases
+    if (min !== null && min !== undefined) {
+      const numMin = Number(min)
+      filters.value.amountMin = !isNaN(numMin) ? numMin : null
+    } else {
+      filters.value.amountMin = null
+    }
+
+    if (max !== null && max !== undefined) {
+      const numMax = Number(max)
+      filters.value.amountMax = !isNaN(numMax) ? numMax : null
+    } else {
+      filters.value.amountMax = null
+    }
+  }
+
+  /**
+   * Set date range filter
+   */
+  function setDateRange(from: string | null, to: string | null) {
+    filters.value.dateFrom = from
+    filters.value.dateTo = to
+  }
+
+  /**
+   * Set account name filter
+   */
+  function setAccountNameFilter(accountName: string) {
+    filters.value.accountNameFilter = accountName
+  }
+
+  /**
+   * Set deal name filter
+   */
+  function setDealNameFilter(dealName: string) {
+    filters.value.dealNameFilter = dealName
+  }
+
+  /**
+   * Clear all filters
+   */
+  function clearFilters() {
+    filters.value = {
+      search: '',
+      statusFilter: [],
+      amountMin: null,
+      amountMax: null,
+      dateFrom: null,
+      dateTo: null,
+      accountNameFilter: '',
+      dealNameFilter: '',
+    }
+  }
+
   return {
     // State
     deals,
     loading,
     error,
+    filters,
 
     // Getters
     allDeals,
+    filteredDeals,
+    activeFilterCount,
 
     // Actions
     addDeals,
@@ -107,5 +280,14 @@ export const useDealStore = defineStore('deals', () => {
     setLoading,
     setError,
     clearDeals,
+
+    // Filter Actions
+    setSearch,
+    setStatusFilter,
+    setAmountRange,
+    setDateRange,
+    setAccountNameFilter,
+    setDealNameFilter,
+    clearFilters,
   }
 })

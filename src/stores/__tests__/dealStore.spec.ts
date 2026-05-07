@@ -4,7 +4,7 @@ import { useDealStore } from '../dealStore'
 import { DealStatus } from '@/types'
 import type { Deal } from '@/types'
 
-describe('Deal Store - Block 1', () => {
+describe('Deal Store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
