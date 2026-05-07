@@ -1,5 +1,88 @@
 {
+  "app": {
+    "title": "Partner Portal - Deal Management",
+    "titleShort": "Partner Portal"
+  },
+  "nav": {
+    "home": "Home",
+    "deals": "Deals"
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "back": "Back",
+    "clear": "Clear",
+    "clearAll": "Clear All",
+    "viewDetails": "View Details"
+  },
   "search": {
     "placeholder": "Search deals by name, account, status, or contact..."
+  },
+  "filters": {
+    "title": "Filters",
+    "activeFilters": "Active Filters",
+    "status": "Status",
+    "statusPlaceholder": "Select status",
+    "amountRange": "Amount Range",
+    "amountMin": "Min",
+    "amountMax": "Max",
+    "dateRange": "Date Range",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "accountName": "Account Name",
+    "accountNamePlaceholder": "Filter by account name",
+    "dealName": "Deal Name",
+    "dealNamePlaceholder": "Filter by deal name",
+    "chipStatus": "Status: {status}",
+    "chipMin": "Min: ${amount}",
+    "chipMax": "Max: ${amount}",
+    "chipDateFrom": "From: {date}",
+    "chipDateTo": "To: {date}",
+    "chipAccount": "Account: {name}",
+    "chipDeal": "Deal: {name}"
+  },
+  "dealList": {
+    "title": "Deals",
+    "count": "{filtered} / {total} deals",
+    "countAll": "{count} deals",
+    "emptyTitle": "No deals found",
+    "emptyText": "There are no deals to display at the moment.",
+    "noMatchTitle": "No deals match filters",
+    "noMatchText": "Try adjusting your search or filter criteria.",
+    "table": {
+      "dealId": "Deal ID",
+      "dealName": "Deal Name",
+      "accountName": "Account",
+      "status": "Status",
+      "amount": "Amount",
+      "createdDate": "Created Date",
+      "actions": "Actions"
+    }
+  },
+  "dealDetails": {
+    "backToDeals": "Back to Deals",
+    "loading": "Loading deal details...",
+    "notFoundTitle": "Deal not found",
+    "notFoundText": "The deal you are looking for does not exist or has been removed.",
+    "accountInfo": "Account Information",
+    "contactInfo": "Contact Information",
+    "description": "Description",
+    "status": "Status",
+    "amount": "Amount",
+    "createdDate": "Created Date",
+    "lastUpdated": "Last Updated",
+    "accountName": "Account Name",
+    "assignedTo": "Assigned To",
+    "contactPerson": "Contact Person",
+    "email": "Email"
+  },
+  "dealStatus": {
+    "open": "Open",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "language": {
+    "select": "Language"
   }
 }

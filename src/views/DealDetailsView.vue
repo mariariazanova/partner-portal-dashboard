@@ -10,7 +10,7 @@
           @click="goBack"
           class="mb-4"
         >
-          Back to Deals
+          {{ $t('dealDetails.backToDeals') }}
         </v-btn>
 
         <!-- Loading State -->
@@ -21,7 +21,7 @@
               color="primary"
               size="64"
             ></v-progress-circular>
-            <div class="mt-4 text-body-1">Loading deal details...</div>
+            <div class="mt-4 text-body-1">{{ $t('dealDetails.loading') }}</div>
           </div>
         </v-card>
 
@@ -42,8 +42,8 @@
         <v-empty-state
           v-else-if="!deal"
           icon="mdi-briefcase-off-outline"
-          title="Deal not found"
-          text="The deal you are looking for does not exist or has been removed."
+          :title="$t('dealDetails.notFoundTitle')"
+          :text="$t('dealDetails.notFoundText')"
         >
           <template #actions>
             <v-btn
@@ -51,7 +51,7 @@
               variant="elevated"
               @click="goBack"
             >
-              Back to Deals
+              {{ $t('dealDetails.backToDeals') }}
             </v-btn>
           </template>
         </v-empty-state>
@@ -70,18 +70,18 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-caption text-grey">Status</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.status') }}</div>
                     <v-chip
                       :color="getStatusColor(deal.status)"
                       size="large"
                       variant="flat"
                       class="mt-1"
                     >
-                      {{ deal.status }}
+                      {{ $t(`dealStatus.${deal.status.toLowerCase()}`) }}
                     </v-chip>
                   </div>
                   <div class="mb-4">
-                    <div class="text-caption text-grey">Amount</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.amount') }}</div>
                     <div class="text-h4 text-primary mt-1">
                       {{ formatCurrency(deal.amount) }}
                     </div>
@@ -89,13 +89,13 @@
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-caption text-grey">Created Date</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.createdDate') }}</div>
                     <div class="text-body-1 mt-1">
                       {{ formatDate(deal.createdDate) }}
                     </div>
                   </div>
                   <div v-if="deal.updatedDate" class="mb-4">
-                    <div class="text-caption text-grey">Last Updated</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.lastUpdated') }}</div>
                     <div class="text-body-1 mt-1">
                       {{ formatDate(deal.updatedDate) }}
                     </div>
@@ -109,20 +109,20 @@
           <v-card class="mb-4">
             <v-card-title>
               <v-icon icon="mdi-office-building" class="me-2"></v-icon>
-              Account Information
+              {{ $t('dealDetails.accountInfo') }}
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-caption text-grey">Account Name</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.accountName') }}</div>
                     <div class="text-body-1 mt-1">{{ deal.accountName }}</div>
                   </div>
                 </v-col>
                 <v-col v-if="deal.assignedTo" cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-caption text-grey">Assigned To</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.assignedTo') }}</div>
                     <div class="text-body-1 mt-1">{{ deal.assignedTo }}</div>
                   </div>
                 </v-col>
@@ -134,20 +134,20 @@
           <v-card v-if="deal.contactPerson || deal.contactEmail" class="mb-4">
             <v-card-title>
               <v-icon icon="mdi-account" class="me-2"></v-icon>
-              Contact Information
+              {{ $t('dealDetails.contactInfo') }}
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text>
               <v-row>
                 <v-col v-if="deal.contactPerson" cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-caption text-grey">Contact Person</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.contactPerson') }}</div>
                     <div class="text-body-1 mt-1">{{ deal.contactPerson }}</div>
                   </div>
                 </v-col>
                 <v-col v-if="deal.contactEmail" cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-caption text-grey">Email</div>
+                    <div class="text-caption text-grey">{{ $t('dealDetails.email') }}</div>
                     <div class="text-body-1 mt-1">
                       <a :href="`mailto:${deal.contactEmail}`">{{ deal.contactEmail }}</a>
                     </div>
@@ -161,7 +161,7 @@
           <v-card v-if="deal.description">
             <v-card-title>
               <v-icon icon="mdi-text" class="me-2"></v-icon>
-              Description
+              {{ $t('dealDetails.description') }}
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text>

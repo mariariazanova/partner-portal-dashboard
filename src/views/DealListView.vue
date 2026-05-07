@@ -5,10 +5,10 @@
         <v-card>
           <v-card-title class="d-flex align-center pe-2">
             <v-icon icon="mdi-briefcase-outline" class="me-2"></v-icon>
-            Deals
+            {{ $t('dealList.title') }}
             <v-spacer></v-spacer>
             <v-chip v-if="totalDeals > 0 && !loading" color="primary" variant="outlined">
-              {{ filteredDeals.length }} / {{ totalDeals }} deals
+              {{ $t('dealList.count', { filtered: filteredDeals.length, total: totalDeals }) }}
             </v-chip>
           </v-card-title>
 
@@ -29,7 +29,7 @@
                   @click="filterDrawer = !filterDrawer"
                   block
                 >
-                  <span v-if="!isMobile">Filters</span>
+                  <span v-if="!isMobile">{{ $t('filters.title') }}</span>
                   <v-badge
                     v-if="dealStore.activeFilterCount > 0"
                     :content="dealStore.activeFilterCount"
@@ -61,7 +61,7 @@
                 variant="text"
                 @click="loadDeals"
               >
-                Retry
+                {{ $t('common.retry') }}
               </v-btn>
             </template>
           </v-alert>
@@ -70,8 +70,8 @@
           <v-empty-state
             v-else-if="totalDeals === 0"
             icon="mdi-briefcase-off-outline"
-            title="No deals found"
-            text="There are no deals to display at the moment."
+            :title="$t('dealList.emptyTitle')"
+            :text="$t('dealList.emptyText')"
             class="my-8"
           >
             <template #actions>
@@ -80,7 +80,7 @@
                 variant="elevated"
                 @click="loadDeals"
               >
-                Refresh
+                {{ $t('common.refresh') }}
               </v-btn>
             </template>
           </v-empty-state>
@@ -89,8 +89,8 @@
           <v-empty-state
             v-else-if="filteredDeals.length === 0"
             icon="mdi-filter-off-outline"
-            title="No deals match filters"
-            text="Try adjusting your search or filter criteria."
+            :title="$t('dealList.noMatchTitle')"
+            :text="$t('dealList.noMatchText')"
             class="my-8"
           >
             <template #actions>
@@ -99,7 +99,7 @@
                 variant="elevated"
                 @click="dealStore.clearFilters"
               >
-                Clear Filters
+                {{ $t('filters.title') }} {{ $t('common.clear') }}
               </v-btn>
             </template>
           </v-empty-state>
@@ -209,6 +209,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
+import { useI18n } from 'vue-i18n'
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
 import DealCard from '@/components/DealCard.vue'
@@ -217,6 +218,7 @@ import FilterPanel from '@/components/FilterPanel.vue'
 
 const router = useRouter()
 const { mobile, lgAndUp } = useDisplay()
+const { t } = useI18n()
 const dealStore = useDealStore()
 
 // State
@@ -249,16 +251,16 @@ const paginatedDealsForMobile = computed(() => {
   return filteredDeals.value.slice(start, end)
 })
 
-// Table headers
-const headers = [
-  { title: 'Deal ID', key: 'dealId', sortable: true, width: '120px' },
-  { title: 'Deal Name', key: 'dealName', sortable: true, width: '250px' },
-  { title: 'Account', key: 'accountName', sortable: true, width: '200px' },
-  { title: 'Status', key: 'status', sortable: true, width: '120px' },
-  { title: 'Amount', key: 'amount', sortable: true, width: '140px' },
-  { title: 'Created Date', key: 'createdDate', sortable: true, width: '140px' },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'center' as const, width: '100px' },
-]
+// Table headers (computed for i18n reactivity)
+const headers = computed(() => [
+  { title: t('dealList.table.dealId'), key: 'dealId', sortable: true, width: '120px' },
+  { title: t('dealList.table.dealName'), key: 'dealName', sortable: true, width: '250px' },
+  { title: t('dealList.table.accountName'), key: 'accountName', sortable: true, width: '200px' },
+  { title: t('dealList.table.status'), key: 'status', sortable: true, width: '120px' },
+  { title: t('dealList.table.amount'), key: 'amount', sortable: true, width: '140px' },
+  { title: t('dealList.table.createdDate'), key: 'createdDate', sortable: true, width: '140px' },
+  { title: t('dealList.table.actions'), key: 'actions', sortable: false, align: 'center' as const, width: '100px' },
+])
 
 // Methods
 function getStatusColor(status: DealStatus): string {

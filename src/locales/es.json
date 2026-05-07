@@ -1,0 +1,88 @@
+{
+  "app": {
+    "title": "Portal de Socios - Gestión de Negocios",
+    "titleShort": "Portal de Socios"
+  },
+  "nav": {
+    "home": "Inicio",
+    "deals": "Negocios"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "retry": "Reintentar",
+    "refresh": "Actualizar",
+    "back": "Volver",
+    "clear": "Limpiar",
+    "clearAll": "Limpiar todo",
+    "viewDetails": "Ver detalles"
+  },
+  "search": {
+    "placeholder": "Buscar por nombre, cuenta, estado o contacto..."
+  },
+  "filters": {
+    "title": "Filtros",
+    "activeFilters": "Filtros activos",
+    "status": "Estado",
+    "statusPlaceholder": "Seleccionar estado",
+    "amountRange": "Rango de monto",
+    "amountMin": "Mín",
+    "amountMax": "Máx",
+    "dateRange": "Rango de fechas",
+    "dateFrom": "Desde",
+    "dateTo": "Hasta",
+    "accountName": "Nombre de cuenta",
+    "accountNamePlaceholder": "Filtrar por nombre de cuenta",
+    "dealName": "Nombre del negocio",
+    "dealNamePlaceholder": "Filtrar por nombre del negocio",
+    "chipStatus": "Estado: {status}",
+    "chipMin": "Mín: ${amount}",
+    "chipMax": "Máx: ${amount}",
+    "chipDateFrom": "Desde: {date}",
+    "chipDateTo": "Hasta: {date}",
+    "chipAccount": "Cuenta: {name}",
+    "chipDeal": "Negocio: {name}"
+  },
+  "dealList": {
+    "title": "Negocios",
+    "count": "{filtered} / {total} negocios",
+    "countAll": "{count} negocios",
+    "emptyTitle": "No se encontraron negocios",
+    "emptyText": "No hay negocios para mostrar en este momento.",
+    "noMatchTitle": "Ningún negocio coincide con los filtros",
+    "noMatchText": "Intente ajustar sus criterios de búsqueda o filtro.",
+    "table": {
+      "dealId": "ID de negocio",
+      "dealName": "Nombre del negocio",
+      "accountName": "Cuenta",
+      "status": "Estado",
+      "amount": "Monto",
+      "createdDate": "Fecha de creación",
+      "actions": "Acciones"
+    }
+  },
+  "dealDetails": {
+    "backToDeals": "Volver a negocios",
+    "loading": "Cargando detalles del negocio...",
+    "notFoundTitle": "Negocio no encontrado",
+    "notFoundText": "El negocio que busca no existe o ha sido eliminado.",
+    "accountInfo": "Información de la cuenta",
+    "contactInfo": "Información de contacto",
+    "description": "Descripción",
+    "status": "Estado",
+    "amount": "Monto",
+    "createdDate": "Fecha de creación",
+    "lastUpdated": "Última actualización",
+    "accountName": "Nombre de cuenta",
+    "assignedTo": "Asignado a",
+    "contactPerson": "Persona de contacto",
+    "email": "Correo electrónico"
+  },
+  "dealStatus": {
+    "open": "Abierto",
+    "approved": "Aprobado",
+    "rejected": "Rechazado"
+  },
+  "language": {
+    "select": "Idioma"
+  }
+}

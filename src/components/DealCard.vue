@@ -8,7 +8,7 @@
           size="small"
           variant="flat"
         >
-          {{ deal.status }}
+          {{ $t(`dealStatus.${deal.status.toLowerCase()}`) }}
         </v-chip>
       </div>
 
@@ -23,17 +23,17 @@
 
       <div class="d-flex justify-space-between align-center">
         <div>
-          <div class="text-caption text-grey">Amount</div>
+          <div class="text-caption text-grey">{{ $t('dealDetails.amount') }}</div>
           <div class="text-h6 text-primary">{{ formatCurrency(deal.amount) }}</div>
         </div>
         <div class="text-end">
-          <div class="text-caption text-grey">Created</div>
+          <div class="text-caption text-grey">{{ $t('dealDetails.createdDate') }}</div>
           <div class="text-body-2">{{ formatDate(deal.createdDate) }}</div>
         </div>
       </div>
 
       <div v-if="deal.contactPerson" class="mt-3">
-        <div class="text-caption text-grey">Contact</div>
+        <div class="text-caption text-grey">{{ $t('dealDetails.contactPerson') }}</div>
         <div class="text-body-2">
           <v-icon icon="mdi-account" size="small" class="me-1"></v-icon>
           {{ deal.contactPerson }}
@@ -52,7 +52,7 @@
         append-icon="mdi-arrow-right"
         @click.stop="$emit('view', deal.dealId)"
       >
-        View Details
+        {{ $t('common.viewDetails') }}
       </v-btn>
     </v-card-actions>
   </v-card>
