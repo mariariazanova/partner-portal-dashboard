@@ -12,7 +12,7 @@
     <v-card flat>
       <!-- Header -->
       <v-card-title class="d-flex justify-space-between align-center">
-        <span class="text-h6">Filters</span>
+        <span class="text-h6">{{ $t('filters.title') }}</span>
         <div>
           <v-chip
             v-if="activeFilterCount > 0"
@@ -29,7 +29,7 @@
             color="error"
             @click="handleClearAll"
           >
-            Clear All
+            {{ $t('common.clearAll') }}
           </v-btn>
         </div>
       </v-card-title>
@@ -40,7 +40,7 @@
       <v-card-text class="pa-4">
         <!-- Status Filter -->
         <div class="mb-4">
-          <v-label class="mb-2 d-block font-weight-medium">Status</v-label>
+          <v-label class="mb-2 d-block font-weight-medium">{{ $t('filters.status') }}</v-label>
           <v-select
             v-model="localFilters.statusFilter"
             :items="statusOptions"
@@ -51,7 +51,7 @@
             closable-chips
             variant="outlined"
             density="comfortable"
-            placeholder="Select status"
+            :placeholder="$t('filters.statusPlaceholder')"
             clearable
           >
             <template #chip="{ item, props }">
@@ -68,14 +68,14 @@
 
         <!-- Amount Range Filter -->
         <div class="mb-4">
-          <v-label class="mb-2 d-block font-weight-medium">Amount Range</v-label>
+          <v-label class="mb-2 d-block font-weight-medium">{{ $t('filters.amountRange') }}</v-label>
           <div class="d-flex gap-2">
             <v-text-field
               :model-value="localFilters.amountMin ?? undefined"
               type="number"
               variant="outlined"
               density="comfortable"
-              placeholder="Min"
+              :placeholder="$t('filters.amountMin')"
               prefix="$"
               clearable
               hide-details
@@ -86,7 +86,7 @@
               type="number"
               variant="outlined"
               density="comfortable"
-              placeholder="Max"
+              :placeholder="$t('filters.amountMax')"
               prefix="$"
               clearable
               hide-details
@@ -97,7 +97,7 @@
 
         <!-- Date Range Filter -->
         <div class="mb-4">
-          <v-label class="mb-2 d-block font-weight-medium">Date Range</v-label>
+          <v-label class="mb-2 d-block font-weight-medium">{{ $t('filters.dateRange') }}</v-label>
           <div class="d-flex flex-column gap-2">
             <!-- Date From Picker -->
             <v-menu
@@ -110,7 +110,7 @@
               <template #activator="{ props }">
                 <v-text-field
                   :model-value="localFilters.dateFrom"
-                  label="From"
+                  :label="$t('filters.dateFrom')"
                   prepend-inner-icon="mdi-calendar"
                   variant="outlined"
                   density="comfortable"
@@ -138,7 +138,7 @@
               <template #activator="{ props }">
                 <v-text-field
                   :model-value="localFilters.dateTo"
-                  label="To"
+                  :label="$t('filters.dateTo')"
                   prepend-inner-icon="mdi-calendar"
                   variant="outlined"
                   density="comfortable"
@@ -159,12 +159,12 @@
 
         <!-- Account Name Filter -->
         <div class="mb-4">
-          <v-label class="mb-2 d-block font-weight-medium">Account Name</v-label>
+          <v-label class="mb-2 d-block font-weight-medium">{{ $t('filters.accountName') }}</v-label>
           <v-text-field
             v-model="localFilters.accountNameFilter"
             variant="outlined"
             density="comfortable"
-            placeholder="Filter by account name"
+            :placeholder="$t('filters.accountNamePlaceholder')"
             clearable
             hide-details
           />
@@ -172,12 +172,12 @@
 
         <!-- Deal Name Filter -->
         <div class="mb-4">
-          <v-label class="mb-2 d-block font-weight-medium">Deal Name</v-label>
+          <v-label class="mb-2 d-block font-weight-medium">{{ $t('filters.dealName') }}</v-label>
           <v-text-field
             v-model="localFilters.dealNameFilter"
             variant="outlined"
             density="comfortable"
-            placeholder="Filter by deal name"
+            :placeholder="$t('filters.dealNamePlaceholder')"
             clearable
             hide-details
           />
@@ -187,7 +187,7 @@
       <!-- Active Filters Summary -->
       <v-card-text v-if="activeFilterChips.length > 0" class="pt-0">
         <v-divider class="mb-3" />
-        <v-label class="mb-2 d-block font-weight-medium">Active Filters</v-label>
+        <v-label class="mb-2 d-block font-weight-medium">{{ $t('filters.activeFilters') }}</v-label>
         <div class="d-flex flex-wrap gap-2">
           <v-chip
             v-for="chip in activeFilterChips"
@@ -207,6 +207,7 @@
 <script setup lang="ts">
 import {ref, computed, onMounted, onUnmounted, watch, watchEffect} from 'vue'
 import { useDisplay } from 'vuetify'
+import { useI18n } from 'vue-i18n'
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
 
@@ -239,6 +240,7 @@ const emit = defineEmits<Emits>()
 
 const dealStore = useDealStore()
 const { mobile, lgAndUp } = useDisplay()
+const { t } = useI18n()
 
 // Local drawer state
 const isOpen = ref(props.modelValue)
@@ -305,12 +307,12 @@ const localFilters = ref({
   dealNameFilter: dealStore.filters.dealNameFilter,
 })
 
-// Status options for select
-const statusOptions = [
-  { label: 'Open', value: DealStatus.OPEN },
-  { label: 'Approved', value: DealStatus.APPROVED },
-  { label: 'Rejected', value: DealStatus.REJECTED },
-]
+// Status options for select (computed for i18n reactivity)
+const statusOptions = computed(() => [
+  { label: t('dealStatus.open'), value: DealStatus.OPEN },
+  { label: t('dealStatus.approved'), value: DealStatus.APPROVED },
+  { label: t('dealStatus.rejected'), value: DealStatus.REJECTED },
+])
 
 // Active filter count
 const activeFilterCount = computed(() => dealStore.activeFilterCount)
