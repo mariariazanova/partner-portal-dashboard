@@ -3,6 +3,12 @@
     "title": "Partner-Portal - Deal-Verwaltung",
     "titleShort": "Partner-Portal"
   },
+  "home": {
+    "welcome": "Willkommen im Partner-Portal!",
+    "subtitle": "Verwalten Sie Ihre Deals und Partnerschaften an einem Ort",
+    "currentRole": "Aktuelle Rolle",
+    "viewDeals": "Deals anzeigen"
+  },
   "nav": {
     "home": "Startseite",
     "deals": "Deals"

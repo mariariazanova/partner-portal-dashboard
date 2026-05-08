@@ -3,6 +3,12 @@
     "title": "パートナーポータル - 取引管理",
     "titleShort": "パートナーポータル"
   },
+  "home": {
+    "welcome": "パートナーポータルへようこそ！",
+    "subtitle": "取引とパートナーシップを一元管理",
+    "currentRole": "現在の役割",
+    "viewDeals": "取引を表示"
+  },
   "nav": {
     "home": "ホーム",
     "deals": "取引"

@@ -3,6 +3,12 @@
     "title": "Partner Portal - Deal Management",
     "titleShort": "Partner Portal"
   },
+  "home": {
+    "welcome": "Welcome to Partner Portal!",
+    "subtitle": "Manage your deals and partnerships in one place",
+    "currentRole": "Current Role",
+    "viewDeals": "View Deals"
+  },
   "nav": {
     "home": "Home",
     "deals": "Deals"

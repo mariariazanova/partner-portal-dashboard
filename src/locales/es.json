@@ -3,6 +3,12 @@
     "title": "Portal de Socios - Gestión de Negocios",
     "titleShort": "Portal de Socios"
   },
+  "home": {
+    "welcome": "¡Bienvenido al Portal de Socios!",
+    "subtitle": "Gestione sus negocios y asociaciones en un solo lugar",
+    "currentRole": "Rol Actual",
+    "viewDeals": "Ver Negocios"
+  },
   "nav": {
     "home": "Inicio",
     "deals": "Negocios"

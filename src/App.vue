@@ -21,16 +21,38 @@ const navItems = computed(() => [
 ])
 
 const languages = [
-  { value: 'en', title: 'English' },
-  { value: 'ja', title: '日本語' },
-  { value: 'de', title: 'Deutsch' },
-  { value: 'es', title: 'Español' },
+  { value: 'en', title: 'English', short: 'EN' },
+  { value: 'ja', title: '日本語', short: 'JA' },
+  { value: 'de', title: 'Deutsch', short: 'DE' },
+  { value: 'es', title: 'Español', short: 'ES' },
 ]
 
+// Full language names for dropdown items
+const languageItems = computed(() =>
+  languages.map(lang => ({ value: lang.value, title: lang.title }))
+)
+
+// Abbreviated for display on mobile
+const currentLanguageDisplay = computed(() => {
+  const lang = languages.find(l => l.value === locale.value)
+  return mobile.value ? lang?.short : lang?.title
+})
+
 const roles = computed(() => [
-  { value: UserRole.ADMIN, title: t('userRole.admin') },
-  { value: UserRole.PARTNER, title: t('userRole.partner') },
+  { value: UserRole.ADMIN, title: t('userRole.admin'), short: t('userRole.admin').substring(0, 3) },
+  { value: UserRole.PARTNER, title: t('userRole.partner'), short: t('userRole.partner').substring(0, 3) },
 ])
+
+// Full role names for dropdown items
+const roleItems = computed(() =>
+  roles.value.map(role => ({ value: role.value, title: role.title }))
+)
+
+// Abbreviated for display on mobile
+const currentRoleDisplay = computed(() => {
+  const role = roles.value.find(r => r.value === authStore.currentRole)
+  return mobile.value ? role?.short : role?.title
+})
 
 function navigateTo(route: string) {
   router.push(route)
@@ -76,21 +98,25 @@ function changeRole(newRole: UserRole) {
       <!-- Role Switcher -->
       <v-select
         :model-value="authStore.currentRole"
-        :items="roles"
+        :items="roleItems"
         item-title="title"
         item-value="value"
         density="compact"
         variant="outlined"
         hide-details
-        prepend-inner-icon="mdi-account-circle"
+        :prepend-inner-icon="mobile ? undefined : 'mdi-account-circle'"
         class="role-select"
         @update:model-value="changeRole"
-      />
+      >
+        <template #selection>
+          <span>{{ currentRoleDisplay }}</span>
+        </template>
+      </v-select>
 
       <!-- Language Switcher -->
       <v-select
         :model-value="locale"
-        :items="languages"
+        :items="languageItems"
         item-title="title"
         item-value="value"
         density="compact"
@@ -98,7 +124,11 @@ function changeRole(newRole: UserRole) {
         hide-details
         class="language-select"
         @update:model-value="changeLanguage"
-      />
+      >
+        <template #selection>
+          <span>{{ currentLanguageDisplay }}</span>
+        </template>
+      </v-select>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" temporary>
@@ -131,6 +161,24 @@ function changeRole(newRole: UserRole) {
   margin-right: 12px;
 }
 
+/* Mobile: Make role select very compact */
+@media (max-width: 600px) {
+  .role-select {
+    max-width: 85px;
+    min-width: 85px;
+    margin-right: 6px;
+  }
+
+  .role-select :deep(.v-field__input) {
+    padding-left: 8px;
+    padding-right: 0;
+  }
+
+  .role-select :deep(.v-field__append-inner) {
+    padding-left: 2px;
+  }
+}
+
 .role-select :deep(.v-field) {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
@@ -157,6 +205,24 @@ function changeRole(newRole: UserRole) {
   max-width: 150px;
   min-width: 120px;
   margin-right: 16px;
+}
+
+/* Mobile: Make language select very compact */
+@media (max-width: 600px) {
+  .language-select {
+    max-width: 75px;
+    min-width: 75px;
+    margin-right: 8px;
+  }
+
+  .language-select :deep(.v-field__input) {
+    padding-left: 8px;
+    padding-right: 0;
+  }
+
+  .language-select :deep(.v-field__append-inner) {
+    padding-left: 2px;
+  }
 }
 
 .language-select :deep(.v-field) {
