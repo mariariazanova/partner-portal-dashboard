@@ -90,6 +90,10 @@
     "approved": "Aprobado",
     "rejected": "Rechazado"
   },
+  "userRole": {
+    "admin": "Administrador",
+    "partner": "Socio"
+  },
   "language": {
     "select": "Idioma"
   }

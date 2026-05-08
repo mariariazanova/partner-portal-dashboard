@@ -188,6 +188,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from "vue-i18n"
 import { useDealStore } from '@/stores/dealStore'
 import { DealStatus } from '@/types'
 import type { Deal } from '@/types'
@@ -195,6 +196,7 @@ import { useNotification } from '@/composables/useNotification'
 
 const route = useRoute()
 const router = useRouter()
+const { locale } = useI18n()
 const dealStore = useDealStore()
 const notification = useNotification()
 
@@ -230,7 +232,7 @@ function formatCurrency(amount: number): string {
 }
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString(locale.value, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

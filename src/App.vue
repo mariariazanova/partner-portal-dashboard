@@ -27,10 +27,10 @@ const languages = [
   { value: 'es', title: 'Español' },
 ]
 
-const roles = [
-  { value: UserRole.ADMIN, title: 'Admin' },
-  { value: UserRole.PARTNER, title: 'Partner' },
-]
+const roles = computed(() => [
+  { value: UserRole.ADMIN, title: t('userRole.admin') },
+  { value: UserRole.PARTNER, title: t('userRole.partner') },
+])
 
 function navigateTo(route: string) {
   router.push(route)

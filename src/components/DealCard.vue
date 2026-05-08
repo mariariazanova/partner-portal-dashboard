@@ -1,8 +1,8 @@
 <template>
-  <v-card elevation="2" @click="$emit('view', deal.dealId)">
+  <v-card elevation="2" hover class="clickable-card" @click="$emit('view', deal.dealId)">
     <v-card-text>
-      <div class="d-flex justify-space-between align-center mb-2">
-        <div class="text-caption text-grey">{{ deal.dealId }}</div>
+      <div class="d-flex justify-space-between align-center mb-3">
+        <div class="text-h6">{{ deal.dealName }}</div>
         <v-chip
           :color="getStatusColor(deal.status)"
           size="small"
@@ -11,8 +11,6 @@
           {{ $t(`dealStatus.${deal.status.toLowerCase()}`) }}
         </v-chip>
       </div>
-
-      <div class="text-h6 mb-2">{{ deal.dealName }}</div>
 
       <div class="text-body-2 mb-3">
         <v-icon icon="mdi-office-building" size="small" class="me-1"></v-icon>
@@ -43,24 +41,15 @@
         </div>
       </div>
     </v-card-text>
-
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn
-        color="primary"
-        variant="text"
-        append-icon="mdi-arrow-right"
-        @click.stop="$emit('view', deal.dealId)"
-      >
-        {{ $t('common.viewDetails') }}
-      </v-btn>
-    </v-card-actions>
   </v-card>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { Deal } from '@/types'
 import { DealStatus } from '@/types'
+
+const { locale } = useI18n()
 
 interface Props {
   deal: Deal
@@ -95,10 +84,21 @@ function formatCurrency(amount: number): string {
 }
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString(locale.value, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   })
 }
 </script>
+
+<style scoped>
+.clickable-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-card:hover {
+  transform: translateY(-2px);
+}
+</style>

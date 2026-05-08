@@ -13,20 +13,19 @@
       <!-- Header -->
       <v-card-title class="d-flex justify-space-between align-center">
         <span class="text-h6">{{ $t('filters.title') }}</span>
-        <div>
+        <div class="d-flex align-center ga-2">
           <v-chip
             v-if="activeFilterCount > 0"
             color="primary"
             size="small"
-            class="mr-2"
           >
             {{ activeFilterCount }}
           </v-chip>
           <v-btn
             v-if="activeFilterCount > 0"
-            variant="text"
+            variant="outlined"
             size="small"
-            color="error"
+            color="primary"
             @click="handleClearAll"
           >
             {{ $t('common.clearAll') }}
@@ -54,13 +53,14 @@
             :placeholder="$t('filters.statusPlaceholder')"
             clearable
           >
-            <template #chip="{ item, props }">
+            <template #chip="{ item }">
               <v-chip
-                v-bind="props"
                 :color="getStatusColor(item.value)"
                 size="small"
+                closable
+                @click:close="removeStatusFilter(item.value)"
               >
-                {{ item.title }}
+                {{ item.label }}
               </v-chip>
             </template>
           </v-select>
@@ -331,6 +331,13 @@ function getStatusColor(status: DealStatus) {
     default:
       return 'default'
   }
+}
+
+// Remove status filter
+function removeStatusFilter(status: DealStatus) {
+  localFilters.value.statusFilter = localFilters.value.statusFilter.filter(
+    (s) => s !== status
+  )
 }
 
 // Build active filter chips

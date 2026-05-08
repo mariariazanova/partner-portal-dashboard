@@ -21,21 +21,34 @@
                 <SearchBar />
               </v-col>
               <v-col cols="12" sm="3" md="2">
+                <v-badge
+                  v-if="isMobile && dealStore.activeFilterCount > 0"
+                  :content="dealStore.activeFilterCount"
+                  color="primary"
+                  floating
+                >
+                  <v-btn
+                    :color="dealStore.activeFilterCount > 0 ? 'primary' : 'default'"
+                    variant="outlined"
+                    icon="mdi-filter-variant"
+                    @click="filterDrawer = !filterDrawer"
+                    block
+                  />
+                </v-badge>
                 <v-btn
+                  v-else
                   :color="dealStore.activeFilterCount > 0 ? 'primary' : 'default'"
                   variant="outlined"
-                  :prepend-icon="isMobile ? undefined : 'mdi-filter-variant'"
-                  :icon="isMobile ? 'mdi-filter-variant' : undefined"
+                  :prepend-icon="isMobile ? 'mdi-filter-variant' : 'mdi-filter-variant'"
                   @click="filterDrawer = !filterDrawer"
                   block
                 >
                   <span v-if="!isMobile">{{ $t('filters.title') }}</span>
                   <v-badge
-                    v-if="dealStore.activeFilterCount > 0"
+                    v-if="!isMobile && dealStore.activeFilterCount > 0"
                     :content="dealStore.activeFilterCount"
                     color="primary"
-                    :inline="!isMobile"
-                    :floating="isMobile"
+                    inline
                   />
                 </v-btn>
               </v-col>
@@ -115,16 +128,12 @@
             :loading="loading"
             :items-per-page="itemsPerPage"
             hide-default-footer
-            class="elevation-0 deals-table"
+            disable-sort
+            class="elevation-0 deals-table clickable-rows"
             item-value="dealId"
+            hover
+            @click:row="(event, { item }) => viewDeal(item.dealId)"
           >
-            <!-- Deal ID Column Template -->
-            <template #[`item.dealId`]="{ item }">
-              <div class="text-truncate-cell" :title="item.dealId">
-                {{ item.dealId }}
-              </div>
-            </template>
-
             <!-- Deal Name Column Template -->
             <template #[`item.dealName`]="{ item }">
               <div class="text-truncate-cell" :title="item.dealName">
@@ -146,7 +155,7 @@
                 size="small"
                 variant="flat"
               >
-                {{ item.status }}
+                {{ $t(`dealStatus.${item.status.toLowerCase()}`) }}
               </v-chip>
             </template>
 
@@ -158,16 +167,6 @@
             <!-- Created Date Column Template -->
             <template #[`item.createdDate`]="{ item }">
               {{ formatDate(item.createdDate) }}
-            </template>
-
-            <!-- Actions Column Template -->
-            <template #[`item.actions`]="{ item }">
-              <v-btn
-                icon="mdi-eye-outline"
-                size="small"
-                variant="text"
-                @click="viewDeal(item.dealId)"
-              ></v-btn>
             </template>
           </v-data-table>
 
@@ -220,8 +219,8 @@ import FilterPanel from '@/components/FilterPanel.vue'
 import { useNotification } from '@/composables/useNotification'
 
 const router = useRouter()
-const { mobile, lgAndUp } = useDisplay()
-const { t } = useI18n()
+const { mobile } = useDisplay()
+const { t, locale } = useI18n()
 const dealStore = useDealStore()
 const notification = useNotification()
 
@@ -230,7 +229,7 @@ const page = ref(1)
 const itemsPerPage = 10
 const mobilePage = ref(1)
 const itemsPerPageMobile = 10
-const filterDrawer = ref(lgAndUp.value) // Open by default on large screens (1280px+), closed on mobile/tablet
+const filterDrawer = ref(false) // Open by default on large screens (1280px+), closed on mobile/tablet
 
 // Computed
 const isMobile = computed(() => mobile.value)
@@ -257,13 +256,11 @@ const paginatedDealsForMobile = computed(() => {
 
 // Table headers (computed for i18n reactivity)
 const headers = computed(() => [
-  { title: t('dealList.table.dealId'), key: 'dealId', sortable: true, width: '120px' },
-  { title: t('dealList.table.dealName'), key: 'dealName', sortable: true, width: '250px' },
-  { title: t('dealList.table.accountName'), key: 'accountName', sortable: true, width: '200px' },
-  { title: t('dealList.table.status'), key: 'status', sortable: true, width: '120px' },
-  { title: t('dealList.table.amount'), key: 'amount', sortable: true, width: '140px' },
-  { title: t('dealList.table.createdDate'), key: 'createdDate', sortable: true, width: '140px' },
-  { title: t('dealList.table.actions'), key: 'actions', sortable: false, align: 'center' as const, width: '100px' },
+  { title: t('dealList.table.dealName'), key: 'dealName', width: '300px' },
+  { title: t('dealList.table.accountName'), key: 'accountName', width: '250px' },
+  { title: t('dealList.table.status'), key: 'status', width: '140px' },
+  { title: t('dealList.table.amount'), key: 'amount', width: '160px' },
+  { title: t('dealList.table.createdDate'), key: 'createdDate', width: '160px' },
 ])
 
 // Methods
@@ -290,7 +287,7 @@ function formatCurrency(amount: number): string {
 }
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString(locale.value, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -354,13 +351,20 @@ async function loadDeals() {
   table-layout: fixed;
 }
 
-:deep(.deals-table th:nth-child(1)),
-:deep(.deals-table td:nth-child(1)) {
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
+/* Clickable rows styling */
+:deep(.clickable-rows tbody tr) {
+  cursor: pointer;
 }
 
+/* Deal Name - Column 1 */
+:deep(.deals-table th:nth-child(1)),
+:deep(.deals-table td:nth-child(1)) {
+  width: 300px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+}
+
+/* Account Name - Column 2 */
 :deep(.deals-table th:nth-child(2)),
 :deep(.deals-table td:nth-child(2)) {
   width: 250px !important;
@@ -368,38 +372,27 @@ async function loadDeals() {
   max-width: 250px !important;
 }
 
+/* Status - Column 3 */
 :deep(.deals-table th:nth-child(3)),
 :deep(.deals-table td:nth-child(3)) {
-  width: 200px !important;
-  min-width: 200px !important;
-  max-width: 200px !important;
+  width: 140px !important;
+  min-width: 140px !important;
+  max-width: 140px !important;
 }
 
+/* Amount - Column 4 */
 :deep(.deals-table th:nth-child(4)),
 :deep(.deals-table td:nth-child(4)) {
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
 }
 
+/* Created Date - Column 5 */
 :deep(.deals-table th:nth-child(5)),
 :deep(.deals-table td:nth-child(5)) {
-  width: 140px !important;
-  min-width: 140px !important;
-  max-width: 140px !important;
-}
-
-:deep(.deals-table th:nth-child(6)),
-:deep(.deals-table td:nth-child(6)) {
-  width: 140px !important;
-  min-width: 140px !important;
-  max-width: 140px !important;
-}
-
-:deep(.deals-table th:nth-child(7)),
-:deep(.deals-table td:nth-child(7)) {
-  width: 100px !important;
-  min-width: 100px !important;
-  max-width: 100px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
 }
 </style>

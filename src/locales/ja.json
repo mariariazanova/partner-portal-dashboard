@@ -90,6 +90,10 @@
     "approved": "承認済み",
     "rejected": "却下"
   },
+  "userRole": {
+    "admin": "管理者",
+    "partner": "パートナー"
+  },
   "language": {
     "select": "言語"
   }

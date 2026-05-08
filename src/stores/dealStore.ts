@@ -71,6 +71,7 @@ export const useDealStore = defineStore('deals', () => {
       const searchLower = filters.value.search.toLowerCase().trim()
       result = result.filter((deal) => {
         return (
+          deal.dealId.toLowerCase().includes(searchLower) ||
           deal.dealName.toLowerCase().includes(searchLower) ||
           deal.accountName.toLowerCase().includes(searchLower) ||
           deal.status.toLowerCase().includes(searchLower) ||

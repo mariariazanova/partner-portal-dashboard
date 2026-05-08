@@ -143,7 +143,7 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 
 ### What We're Leveraging:
 1. **UI Design**: Vuetify Material Design components (professional out-of-the-box)
-2. **Data Tables**: v-data-table with built-in sorting, pagination, filtering
+2. **Data Tables**: v-data-table with built-in pagination, filtering
 3. **Forms**: v-text-field, v-select, v-checkbox (no custom components needed)
 4. **Date Picker**: v-date-picker (better than native HTML inputs)
 5. **Responsive**: Vuetify's v-row/v-col grid system + $vuetify.display
@@ -194,7 +194,7 @@ Given the tight timeline, this estimation uses a **priority-based approach with 
 | Decision | Time Saved | Trade-off |
 |----------|------------|-----------|
 | Use Vuetify instead of custom UI | 5h | Material Design (professional, not custom) |
-| v-data-table for list view | 2h | Built-in sorting, pagination, filtering |
+| v-data-table for list view | 2h | Built-in pagination, filtering |
 | v-date-picker for dates | 1h | Better than native HTML5 inputs |
 | Skip E2E tests | 4h | Unit tests for core logic only |
 | Use Google Translate | 3h | May have minor translation issues |
