@@ -18,14 +18,19 @@ export function sanitizeInput(input: string): string {
 
   return (
     input
-      // Remove HTML tags
-      .replace(/<[^>]*>/g, '')
-      // Remove script tags content
+      // Remove script/style blocks completely
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      // Remove event handlers (onclick, onerror, etc.)
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+
+      // Remove event handlers
       .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+
       // Remove javascript: protocol
       .replace(/javascript:/gi, '')
+
+      // Remove remaining HTML tags
+      .replace(/<[^>]*>/g, '')
+
       // Trim whitespace
       .trim()
   )
@@ -37,7 +42,7 @@ export function sanitizeInput(input: string): string {
  * @returns Sanitized search query
  */
 export function sanitizeSearchQuery(query: string): string {
-  const sanitized = sanitizeInput(query)
+  const sanitized = sanitizeInput(query).toLowerCase()
 
   // Limit length to prevent DoS
   const maxLength = 200
@@ -50,18 +55,35 @@ export function sanitizeSearchQuery(query: string): string {
  * @returns Valid number or null
  */
 export function sanitizeNumberInput(input: string | number | null | undefined): number | null {
-  if (input === null || input === undefined || input === '') {
+  if (input === null || input === undefined) {
     return null
   }
 
-  const num = Number(input)
+  // Handle strings
+  if (typeof input === 'string') {
+    const trimmed = input.trim()
 
-  // Check if valid number
-  if (isNaN(num) || !isFinite(num)) {
-    return null
+    if (trimmed === '') {
+      return null
+    }
+
+    // Reject hex/octal/binary notation
+    if (/^0[xob]/i.test(trimmed)) {
+      return null
+    }
+
+    // Strict decimal validation
+    if (!/^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(trimmed)) {
+      return null
+    }
+
+    const num = Number(trimmed)
+
+    return isFinite(num) ? num : null
   }
 
-  return num
+  // Handle numbers
+  return isFinite(input) ? input : null
 }
 
 /**

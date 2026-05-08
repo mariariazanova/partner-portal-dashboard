@@ -74,9 +74,7 @@ export const useDealStore = defineStore('deals', () => {
           deal.dealId.toLowerCase().includes(searchLower) ||
           deal.dealName.toLowerCase().includes(searchLower) ||
           deal.accountName.toLowerCase().includes(searchLower) ||
-          deal.status.toLowerCase().includes(searchLower) ||
-          (deal.description && deal.description.toLowerCase().includes(searchLower)) ||
-          (deal.contactPerson && deal.contactPerson.toLowerCase().includes(searchLower))
+          deal.status.toLowerCase().includes(searchLower)
         )
       })
     }

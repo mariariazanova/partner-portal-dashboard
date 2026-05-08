@@ -10,15 +10,6 @@ import mockDeals from '@/data/mockDeals.json'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 const MOCK_MODE = import.meta.env.VITE_MOCK_MODE !== 'false'
 
-// Mock configuration
-const MOCK_CONFIG = {
-  minDelay: Number(import.meta.env.VITE_MOCK_MIN_DELAY) || 300,
-  maxDelay: Number(import.meta.env.VITE_MOCK_MAX_DELAY) || 1000,
-  errorRate: Number(import.meta.env.VITE_MOCK_ERROR_RATE) || 0, // 0-100 percentage
-  timeoutRate: Number(import.meta.env.VITE_MOCK_TIMEOUT_RATE) || 0, // 0-100 percentage
-  timeoutDuration: Number(import.meta.env.VITE_MOCK_TIMEOUT_DURATION) || 5000,
-}
-
 // Cache configuration
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
 
@@ -121,11 +112,27 @@ class MockTimeoutError extends Error {
 }
 
 /**
+ * Mock configuration
+ */
+function getMockConfig() {
+  return {
+    minDelay: Number(import.meta.env.VITE_MOCK_MIN_DELAY) || 300,
+    maxDelay: Number(import.meta.env.VITE_MOCK_MAX_DELAY) || 1000,
+    errorRate: Number(import.meta.env.VITE_MOCK_ERROR_RATE) || 0,
+    timeoutRate: Number(import.meta.env.VITE_MOCK_TIMEOUT_RATE) || 0,
+    timeoutDuration:
+      Number(import.meta.env.VITE_MOCK_TIMEOUT_DURATION) || 5000,
+  }
+}
+
+/**
  * Simulates realistic API delay with variability
  */
 function simulateDelay(): Promise<void> {
+  const config = getMockConfig()
   const delay =
-    MOCK_CONFIG.minDelay + Math.random() * (MOCK_CONFIG.maxDelay - MOCK_CONFIG.minDelay)
+    config.minDelay + Math.random() * (config.maxDelay - config.minDelay)
+
   return new Promise((resolve) => setTimeout(resolve, delay))
 }
 
@@ -133,13 +140,15 @@ function simulateDelay(): Promise<void> {
  * Simulates random API errors based on configuration
  */
 function simulateErrors(): void {
+  const config = getMockConfig()
+
   // Simulate timeout
-  if (Math.random() * 100 < MOCK_CONFIG.timeoutRate) {
+  if (Math.random() * 100 < config.timeoutRate) {
     throw new MockTimeoutError('Request timeout - please try again')
   }
 
   // Simulate 500 error
-  if (Math.random() * 100 < MOCK_CONFIG.errorRate) {
+  if (Math.random() * 100 < config.errorRate) {
     throw new MockApiError('Internal server error', 500, 'Internal Server Error')
   }
 }
@@ -173,6 +182,7 @@ export async function fetchDeals(
   itemsPerPage: number = 10
 ): Promise<DealsApiResponse> {
   if (MOCK_MODE) {
+    const config = getMockConfig()
     const mockRequest = async () => {
       await simulateDelay()
       simulateErrors()
@@ -189,7 +199,7 @@ export async function fetchDeals(
       }
     }
 
-    return withTimeout(mockRequest(), MOCK_CONFIG.timeoutDuration)
+    return withTimeout(mockRequest(), config.timeoutDuration)
   }
 
   // Real API call (to be implemented when backend is ready)
@@ -225,7 +235,8 @@ export async function fetchAllDeals(): Promise<Deal[]> {
       return mockDeals as Deal[]
     }
 
-    const data = await withTimeout(mockRequest(), MOCK_CONFIG.timeoutDuration)
+    const config = getMockConfig()
+    const data = await withTimeout(mockRequest(), config.timeoutDuration)
 
     // Store in cache
     cache.set(cacheKey, data)
@@ -271,7 +282,8 @@ export async function fetchDealById(dealId: string): Promise<Deal | null> {
       return deal || null
     }
 
-    const data = await withTimeout(mockRequest(), MOCK_CONFIG.timeoutDuration)
+    const config = getMockConfig()
+    const data = await withTimeout(mockRequest(), config.timeoutDuration)
 
     // Store in cache (even if null to avoid repeated lookups for non-existent deals)
     cache.set(cacheKey, data)

@@ -11,15 +11,15 @@ import { UserRole } from '@/types'
  * - Role persisted in localStorage
  */
 
-// Get saved role from localStorage or default to Admin
-const savedRole = (localStorage.getItem('userRole') as UserRole) || UserRole.ADMIN
-
 // Mock partner ID for demo purposes
 const MOCK_PARTNER_ID = 'partner-001'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
-  const currentRole = ref<UserRole>(savedRole)
+  // Read localStorage when store is created
+  const currentRole = ref<UserRole>(
+    (localStorage.getItem('userRole') as UserRole) || UserRole.ADMIN
+  )
   const partnerId = ref<string>(MOCK_PARTNER_ID)
 
   // Actions

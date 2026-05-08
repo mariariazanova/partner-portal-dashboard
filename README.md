@@ -2016,12 +2016,13 @@ The application implements multiple security measures to protect against common 
   ```typescript
   // src/utils/sanitize.ts
   export function sanitizeInput(input: string): string {
-    return input
-      .replace(/<[^>]*>/g, '')                           // Remove HTML tags
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove scripts
-      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')      // Remove event handlers
-      .replace(/javascript:/gi, '')                      // Remove javascript: protocol
-      .trim()
+    return input        
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')   // Remove script/style blocks completely
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')      
+      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')                          // Remove event handlers      
+      .replace(/javascript:/gi, '')                                         // Remove javascript: protocol      
+      .replace(/<[^>]*>/g, '')                                              // Remove remaining HTML tags
+      .trim()                                                               // Trim whitespace        
   }
   ```
 
