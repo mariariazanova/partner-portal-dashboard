@@ -1,6 +1,7 @@
 # Implementation Decisions
 
-This document explains the reasoning behind key architectural and technical decisions made during the development of the Partner Portal Deal Management Dashboard.
+This document explains the reasoning behind key architectural and technical decisions made
+during the development of the Partner Portal Deal Management Dashboard.
 
 ---
 
@@ -418,14 +419,11 @@ function getFilteredDeals() {
    - Reduce server load
    - Global edge caching
 
-**Cost**: ~1 week development
-**Gains**: 10x more users, 10x more data
-
 ---
 
 #### **Phase 3: Medium Scale (10K-100K deals, 1K-10K users)**
 
-**Server-Side Filtering, Pagination, Virtual Scrolling**
+**Server-Side Filtering, Pagination, Virtual Scrolling (if large number of deals per page/no pagination)**
 
 **Changes**:
 1. **Server-Side Filtering**
@@ -487,9 +485,6 @@ function getFilteredDeals() {
      }
    }
    ```
-
-**Cost**: ~1 month development
-**Gains**: 10x more data, 10x more users
 
 ---
 
@@ -566,20 +561,17 @@ function getFilteredDeals() {
      targetCPUUtilizationPercentage: 70
    ```
 
-**Cost**: ~3-6 months development
-**Gains**: 10x more data, 10x more users, global performance
-
 ---
 
 ### Scaling Checklist by Data Size
 
-| Deals | Users | Frontend Changes | Backend Changes | Estimated Effort |
-|-------|-------|------------------|-----------------|------------------|
-| **< 1K** | < 100 | None (current) | None (mock) | 0 |
-| **1K-10K** | 100-1K | Real API calls | Add backend + Redis | 1 week |
-| **10K-100K** | 1K-10K | Virtual scrolling | DB indexes, server filters | 1 month |
-| **100K-1M** | 10K-100K | Optimize bundles | Elasticsearch, sharding | 3-6 months |
-| **1M+** | 100K+ | Edge caching, PWA | Microservices, Kafka | 6-12 months |
+| Deals | Users | Frontend Changes | Backend Changes |
+|-------|-------|------------------|-----------------|
+| **< 1K** | < 100 | None (current) | None (mock) |
+| **1K-10K** | 100-1K | Real API calls | Add backend + Redis |
+| **10K-100K** | 1K-10K | Virtual scrolling | DB indexes, server filters |
+| **100K-1M** | 10K-100K | Optimize bundles | Elasticsearch, sharding |
+| **1M+** | 100K+ | Edge caching, PWA | Microservices, Kafka |
 
 ---
 
@@ -587,63 +579,21 @@ function getFilteredDeals() {
 
 ### Current Implementation Limitations
 
-#### **1. Data Rendering Performance**
+#### **1. Client-Side Filtering/Searching Performance**
 
-**Current Bottleneck**:
+**Current Bottleneck: Filtering/searching happens BEFORE pagination, processesing entire dataset**
 ```typescript
-// Rendering 80 deals with v-data-table: ~20ms (fast)
-// Rendering 10,000 deals: ~500ms (slow, janky scrolling)
-// Rendering 100,000 deals: ~5s (unusable)
-```
-
-**Why It's a Problem**:
-- Vue re-renders entire table on filter change
-- DOM nodes grow linearly with data size
-- Browser struggles with 1000+ DOM nodes
-
-**Current Mitigation**:
-- ✅ Pagination (only 10 items rendered)
-- ✅ Computed properties (cached filtering)
-- ✅ v-show vs v-if (keep desktop/mobile in DOM)
-
-**Future Solutions**:
-```vue
-<!-- Virtual scrolling (render only visible rows) -->
-<RecycleScroller :items="deals" :item-size="48">
-  <template #default="{ item }">
-    <DealRow :deal="item" />
-  </template>
-</RecycleScroller>
-```
-
-**Performance Comparison**:
-| Approach | 80 Deals | 1K Deals | 10K Deals | 100K Deals |
-|----------|----------|----------|-----------|------------|
-| **No Pagination** | 20ms | 100ms | 1000ms | 10s |
-| **Pagination (10/page)** | 5ms | 5ms | 5ms | 5ms |
-| **Virtual Scroll** | 5ms | 5ms | 5ms | 5ms |
-
-**Risk Level**: 🟡 **Medium** (pagination works for now, breaks at 10K+ deals)
-
----
-
-#### **2. Large Dataset Filtering/Searching**
-
-**Current Bottleneck**:
-```typescript
-// Client-side filter/search on 80 deals: < 1ms (instant)
-// Client-side filter/search on 10,000 deals: ~50ms (noticeable)
-// Client-side filter/search on 100,000 deals: ~500ms (laggy)
-```
-
-**Code Path**:
-```typescript
-// src/stores/dealStore.ts
+// src/stores/dealStore.ts:59-126
 const filteredDeals = computed(() => {
-  let result = Array.from(deals.value.values()) // O(n)
+  let result = Array.from(deals.value.values()) // ALL deals in memory
 
-  // Search: O(n)
-  if (searchQuery.value) {
+  // Role filter: O(n) - runs on ENTIRE dataset
+  if (authStore.isPartner()) {
+    result = result.filter(deal => deal.assignedTo === authStore.partnerId)
+  }
+
+  // Search: O(n) - multi-field search on ENTIRE dataset
+  if (filters.value.search) {
     result = result.filter(deal =>
       deal.dealName.toLowerCase().includes(searchLower) ||
       deal.accountName.toLowerCase().includes(searchLower) ||
@@ -651,74 +601,98 @@ const filteredDeals = computed(() => {
     )
   }
 
-  // Status filter: O(n)
-  if (filters.value.statusFilter.length > 0) {
-    result = result.filter(deal =>
-      filters.value.statusFilter.includes(deal.status)
-    )
-  }
+  // Status, amount, date filters: O(n) each
+  // ... 4 more filters ...
 
-  // Amount filter: O(n)
-  if (filters.value.amountMin !== null) {
-    result = result.filter(deal => deal.amount >= filters.value.amountMin!)
-  }
-
-  // Total: O(n) × 5 filters = O(5n) → still O(n)
-  return result
+  return result // THEN pagination takes first 10 items for display
 })
 ```
 
+**Performance Breakdown**:
+
+| Dataset Size | DOM Rendering | Filtering Cost | Total Time | User Experience |
+|--------------|---------------|----------------|------------|-----------------|
+| **80 deals** | 5ms (10 rows) | < 1ms | < 6ms | Instant ✅ |
+| **1K deals** | 5ms (10 rows) | ~5ms | ~10ms | Instant ✅ |
+| **10K deals** | 5ms (10 rows) | ~50ms | ~55ms | Noticeable lag 🟡 |
+| **100K deals** | 5ms (10 rows) | ~500ms | ~505ms | Janky typing 🔴 |
+
+**Key Insight: DOM rendering is NOT the problem**
+- ✅ Pagination keeps DOM at constant 10 rows regardless of dataset size
+- ✅ Vue only renders visible page (10 items)
+- ❌ **Filtering still processes entire dataset (80, 1K, 10K, or 100K deals)**
+
 **Why It's a Problem**:
-- Runs on every keystroke (debounced to 300ms)
+- Filtering runs **frequently** during active user input 
+- Filtering processes **entire dataset** before pagination
+- Several full-array filtering passes are executed for each recomputation
 - Blocks UI thread (no web workers)
-- Can't use database indexes
-- Memory intensive (all data in browser)
+- Can't leverage database indexes
+- All data must fit in browser memory
+- Additionally, Vue deep reactivity introduces overhead for large collections,
+  because reactive dependency tracking occurs for accessed properties
 
 **Current Mitigation**:
-- ✅ Debounced search (300ms delay)
-- ✅ Computed property caching
-- ✅ Efficient algorithms (single pass where possible)
+- ✅ Debounced search (300ms delay prevents filtering on every keystroke)
+- ✅ Computed property caching (only re-filters when inputs change)
+- ✅ Efficient filtering (minimizes passes through data)
 
-**Future Solutions**:
+**Problems begin when**:
+- datasets become very large (10K–100K+)
+- users expect instant filtering/searching
+- mobile devices have weaker CPUs/memory
 
-**Option A: Server-Side Filtering**
+**Future Solution: Move Filtering/Sorting/Pagination to Backend**
+
 ```typescript
-// Frontend: Send filters to API
-const response = await fetch('/api/deals/search', {
+// ❌ Current: Client does ALL the work
+const filteredDeals = computed(() => {
+  // Filter all 100K deals in browser
+  return allDeals.value.filter(/* complex filtering */)
+})
+
+// ✅ Future: Backend does the heavy lifting
+const { data: deals } = await fetch('/api/deals', {
   method: 'POST',
   body: JSON.stringify({
     search: 'Acme Corp',
-    status: ['OPEN'],
-    amountMin: 10000
+    status: ['OPEN', 'APPROVED'],
+    amountMin: 10000,
+    amountMax: 50000,
+    dateFrom: '2024-01-01',
+    page: 1,
+    pageSize: 10
   })
 })
+// Backend returns only 10 results, already filtered
 
-// Backend: Database query with indexes
+// Backend: Database handles filtering with indexes (milliseconds, not seconds)
 SELECT * FROM deals
 WHERE (deal_name ILIKE '%Acme Corp%' OR account_name ILIKE '%Acme Corp%')
-  AND status = 'OPEN'
-  AND amount >= 10000
-LIMIT 50
--- Uses indexes: idx_deals_name, idx_deals_status, idx_deals_amount
+  AND status IN ('OPEN', 'APPROVED')
+  AND amount BETWEEN 10000 AND 50000
+  AND created_date >= '2024-01-01'
+ORDER BY created_date DESC
+LIMIT 10 OFFSET 0
+-- Uses composite index: idx_deals_search_status_amount_date
+-- Returns 10 rows in ~5ms, not 100K rows
 ```
 
-**Option B: Web Worker**
-```typescript
-// Offload filtering to background thread
-const worker = new Worker('filter-worker.js')
-worker.postMessage({ deals, filters })
-worker.onmessage = (e) => {
-  filteredDeals.value = e.data // UI thread doesn't block
-}
-```
+**Benefits of Backend Filtering**:
+- Database indexes make filtering fast regardless of dataset size
+- Only transfers 10 results over network instead of 100K
+- UI stays responsive (backend does the work)
+- Enables pagination through large datasets
+- Supports complex queries (full-text search, geospatial, etc.)
 
-**Risk Level**: 🟡 **Medium** (works fine for current data, breaks at 10K+)
+**Risk Level**: 🟡 **Medium** (works fine for current data, breaks at 10K+ deals)
 
 ---
 
-#### **3. Repeated API Requests**
+#### **2. Repeated API Requests**
 
-**Current Bottleneck**:
+**Current Bottleneck: Repeated API requests cause redundant network round-trips and backend work 
+for data that is already available in the client**:
 ```typescript
 // Without caching:
 // - User opens list page: API call (500ms)
@@ -810,9 +784,9 @@ function updateDealStatus(dealId: string, newStatus: DealStatus) {
 
 ---
 
-#### **4. Client-Side State Growth**
+#### **3. Client-Side State Growth & Memory Usage**
 
-**Current Bottleneck**:
+**Current Bottleneck: Entire dataset stored in Pinia memory**:
 ```typescript
 // Memory usage estimation:
 const dealStore = {
@@ -821,12 +795,6 @@ const dealStore = {
   searchQuery: '',                  // ~1KB
   Total: ~165KB (negligible)
 }
-
-// What if 10,000 deals?
-// 10,000 × 2KB = 20MB (browser starts to struggle)
-
-// What if 100,000 deals?
-// 100,000 × 2KB = 200MB (browser crashes)
 ```
 
 **Why It's a Problem**:
@@ -835,9 +803,20 @@ const dealStore = {
 - Mobile devices have less memory
 - Other tabs compete for memory
 
+| Dataset Size | Estimated Memory Usage | Impact            |
+|--------------|------------------------|-------------------|
+| 80 deals | ~160KB | Negligible ✅      |
+| 1,000 deals | ~2MB | Safe ✅            |
+| 10,000 deals | ~20MB | Heavy 🟡          |
+| 100,000 deals | ~200MB | Risky 🔴          |
+
 **Current Design Assumption**:
 - ✅ "All deals fit in memory" (80 deals × 2KB = 160KB)
 - ✅ Works perfectly for current scale
+- ✅ Pagination limits rendered DOM nodes
+- ✅ Map structure improves lookup efficiency
+- ✅ Computed properties cache derived state
+- ✅ Deduplication prevents duplicate records
 
 **Future Issues**:
 - ❌ Can't load all 100K deals into memory
@@ -846,7 +825,19 @@ const dealStore = {
 
 **Future Solutions**:
 
+**Server-Side Pagination**:
+Load only the currently visible page.
+```typescript
+GET /api/deals?page=1&pageSize=10
+```
+
+**Benefits**:
+- ✅ minimal browser memory usage
+- ✅ scalable to millions of records
+- ✅ reduced network payload size
+
 **Windowing Strategy**:
+Keep only nearby pages in memory.
 ```typescript
 // Only keep visible + nearby data in memory
 const visibleDeals = ref<Deal[]>([]) // 50 deals
@@ -869,6 +860,7 @@ function loadPage(pageNum: number) {
 ```
 
 **Lazy Loading Strategy**:
+Store lightweight summaries initially and fetch full details on demand.
 ```typescript
 // Load deal details on-demand
 const dealSummaries = ref<DealSummary[]>([])  // 10K × 200B = 2MB
@@ -888,9 +880,9 @@ async function viewDeal(dealId: string) {
 
 ---
 
-#### **5. Real-Time Update Handling**
+#### **4. Real-Time Update Handling**
 
-**Current Bottleneck**:
+**Current Bottleneck: Mock WebSocket (single-instance assumption)**
 ```typescript
 // Current: Mock WebSocket
 // - Simulates updates every 30s
@@ -898,39 +890,51 @@ async function viewDeal(dealId: string) {
 // - Works fine for demo
 
 // Production issues:
-// - 1000 users × 1 connection = 1000 WebSocket connections
-// - Each update broadcasts to all 1000 users
-// - 100 updates/min × 1000 users = 100,000 messages/min
+// - 1,000 users × 1 connection = 1,000 WebSocket connections
+// - Each update broadcasts to all 1,000 users
+// - 100 updates/min × 1,000 users = 100,000 messages/min
 ```
 
 **WebSocket Scaling Challenges**:
 
-1. **Connection Limits**
-   - Single server: ~10K concurrent connections
-   - Need load balancing for more users
+1. **Connection Scalability (Stateful connections)**
+ 
+   Each user maintains a persistent TCP connection.
+   - Each server holds thousands of active sockets
+   - Memory and file descriptor limits become a constraint
+   - Requires horizontal scaling + load balancing
 
-2. **Broadcast Storm**
-   - Broadcasting to 1000 users is expensive
-   - Need pub/sub system (Redis, Kafka)
+2. **Message Fanout (Broadcast cost)**
+ 
+   Every update may need to be delivered to multiple clients.
+   - 1 update → N connected users
+   - Cost grows linearly with number of active connections
+   - Can cause high CPU + network load
 
-3. **State Synchronization**
-   - User has filtered view (20 deals visible)
-   - Update arrives for deal not in filter
-   - Should we show it or ignore it?
+3. **Distributed State Synchronization**
+   
+   In multi-server systems:
+   - User A and User B may be connected to different servers
+   - A single server cannot broadcast to all users
+   - Requires pub/sub layer (Redis, Kafka, NATS)
 
-4. **Conflict Resolution**
-   - User A updates deal status
-   - User B updates same deal amount
-   - Which update wins?
+4. **Conflict Resolution (Concurrent updates)**
+   
+   When multiple updates occur:
+   - Same entity updated by different users
+   - Requires versioning or last-write-wins strategy
+   - Risk of inconsistent UI state
 
 **Current Mitigation**:
 - ✅ Deduplication (keeps latest version by timestamp)
 - ✅ Cache invalidation on updates
-- ✅ Connection status indicator
-
+- ✅ Basic connection status tracking
+ 
 **Future Solutions**:
 
-**Pub/Sub Architecture**:
+**Redis Pub/Sub architecture or Kafka for cross-server messaging**:
+
+This is standard in real systems for multi-server WebSocket sync.
 ```typescript
 // Backend: Redis pub/sub
 redis.publish('deals:DEAL-123:updated', JSON.stringify(deal))
@@ -945,7 +949,9 @@ redis.on('message', (channel, message) => {
 })
 ```
 
-**Selective Updates**:
+**Selective Updates / filtering on backend**:
+
+Reduces network traffic, reduces fanout cost, improves scalability.
 ```typescript
 // Frontend: Only request updates for visible data
 websocket.send({
@@ -962,7 +968,7 @@ if (deal.status === 'OPEN' && deal.partnerId === subscription.partnerId) {
 }
 ```
 
-**Operational Transform (Conflict Resolution)**:
+**Versioning or Last-write-wins strategy for conflict resolution**:
 ```typescript
 // User A: status = 'APPROVED' at t=100
 // User B: amount = 50000 at t=101
@@ -976,19 +982,46 @@ const merged = {
 }
 ```
 
-**Risk Level**: 🟡 **Medium** (mock works for demo, production needs real infrastructure)
+**Risk Level**: 🔴 **High** (mock works for demo, production needs real infrastructure, 
+impacts scalability, infrastructure, and data consistency)
 
 ---
 
+#### **5. Data Rendering Performance**
+**Current Bottleneck: Mock WebSocket (single-instance assumption)**
+
+**Current Behavior**:
+- The UI renders only 10 items per page
+- Filtering happens on a client-side dataset (~80–a few thousand deals max in current assumptions)
+- DOM size is constant due to pagination (10 rows always rendered)
+
+**Conclusion for current scope**:
+- ❌ Not a real performance issue today
+- ✅ Vue rendering + pagination keeps UI fast and stable
+
+**When It Becomes a Bottleneck**:
+- Number of rows per page grows to 500–1,000+
+- No pagination is used
+- No virtualization is used
+
+Then Vue would struggle due to DOM updates and layout recalculation.
+
+**Future Solutions**:
+
+**Server-side filtering + pagination**
+**Virtualized lists (if table becomes large scroll)**
+
+**Risk Level**: 🟢 **Low** (works for normal number of rows in table)
+
 ### Risk Summary Table
 
-| Risk | Current Status | Breaks At | Mitigation Effort | Priority |
-|------|----------------|-----------|-------------------|----------|
-| **Rendering Performance** | ✅ Pagination | 10K deals | 1 week (virtual scroll) | Medium |
-| **Filtering/Search** | ✅ Client-side | 10K deals | 2 weeks (server-side) | Medium |
-| **API Requests** | ✅ Cached | N/A | N/A (solved) | Low |
-| **Memory Growth** | ✅ Small dataset | 10K deals | 2 weeks (windowing) | Medium |
-| **Real-Time** | ⚠️ Mock only | 1K users | 4 weeks (real infra) | High |
+| Risk                                   | Current Status                | Breaks At                 | Priority  |
+|----------------------------------------|-------------------------------|---------------------------|-----------|
+| **1. Client-Side Filtering/Searching** | ✅ Works for 80 deals          | 10K deals                 | 🟡 Medium |
+| **2. API Requests**                    | ✅ Cached                      | N/A                       | 🟢 Low    |
+| **3. State Growth**                    | ✅ Small dataset               | 10K deals                 | 🟡 Medium |
+| **4. Real-Time Updates**               | ⚠️ Mock only                  | 1K users                  | 🔴 High   |
+| **5. Data Rendering Performance**      | ✅ Works for 10 deals per page | 500–1,000+ deals per page | 🟢 Low    |
 
 ---
 
@@ -1027,7 +1060,7 @@ new PerformanceObserver((list) => {
 
 ## Conclusion
 
-### What We Built (Phase 1)
+### What Is Already Built (Phase 1)
 - ✅ **Solid foundation** for 100-1K deals, 10-100 users
 - ✅ **Clean architecture** that scales with code
 - ✅ **Best practices** (caching, error handling, security)
@@ -1035,13 +1068,12 @@ new PerformanceObserver((list) => {
 
 ### What Needs Work for Scale (Phase 2+)
 - 🔧 **Backend API** (replace mock)
-- 🔧 **Server-side filtering** (10K+ deals)
+- 🔧 **Server-side filtering/searching/pagination** (10K+ deals)
 - 🔧 **Real WebSocket** (1K+ users)
-- 🔧 **Virtual scrolling** (large datasets)
+- 🔧 **Virtual scrolling** (large number of deals per page)
 - 🔧 **Monitoring** (observability)
 
 ### Key Takeaway
-> **"Premature optimization is the root of all evil."** - Donald Knuth
 
 This implementation prioritizes:
 1. **Clean architecture** over premature optimization
