@@ -1,0 +1,106 @@
+{
+  "app": {
+    "title": "Partner-Portal - Deal-Verwaltung",
+    "titleShort": "Partner-Portal"
+  },
+  "home": {
+    "welcome": "Willkommen im Partner-Portal!",
+    "subtitle": "Verwalten Sie Ihre Deals und Partnerschaften an einem Ort",
+    "currentRole": "Aktuelle Rolle",
+    "viewDeals": "Deals anzeigen"
+  },
+  "nav": {
+    "home": "Startseite",
+    "deals": "Deals"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "retry": "Wiederholen",
+    "refresh": "Aktualisieren",
+    "back": "Zurück",
+    "clear": "Löschen",
+    "clearAll": "Alle löschen",
+    "viewDetails": "Details anzeigen"
+  },
+  "errors": {
+    "timeout": "Zeitüberschreitung der Anfrage. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "unexpected": "Ein unerwarteter Fehler ist aufgetreten",
+    "loadDeals": "Deals konnten nicht geladen werden",
+    "loadDealDetails": "Deal-Details konnten nicht geladen werden"
+  },
+  "search": {
+    "placeholder": "Nach Name, Konto, Status oder Kontakt suchen..."
+  },
+  "filters": {
+    "title": "Filter",
+    "activeFilters": "Aktive Filter",
+    "status": "Status",
+    "statusPlaceholder": "Status auswählen",
+    "amountRange": "Betragsspanne",
+    "amountMin": "Min",
+    "amountMax": "Max",
+    "dateRange": "Datumsbereich",
+    "dateFrom": "Von",
+    "dateTo": "Bis",
+    "accountName": "Kontoname",
+    "accountNamePlaceholder": "Nach Kontoname filtern",
+    "dealName": "Deal-Name",
+    "dealNamePlaceholder": "Nach Deal-Name filtern",
+    "chipStatus": "Status: {status}",
+    "chipMin": "Min: ${amount}",
+    "chipMax": "Max: ${amount}",
+    "chipDateFrom": "Von: {date}",
+    "chipDateTo": "Bis: {date}",
+    "chipAccount": "Konto: {name}",
+    "chipDeal": "Deal: {name}"
+  },
+  "dealList": {
+    "title": "Deals",
+    "count": "{filtered} / {total} Deals",
+    "countAll": "{count} Deals",
+    "emptyTitle": "Keine Deals gefunden",
+    "emptyText": "Derzeit sind keine Deals zum Anzeigen verfügbar.",
+    "noMatchTitle": "Keine Deals entsprechen den Filtern",
+    "noMatchText": "Versuchen Sie, Ihre Such- oder Filterkriterien anzupassen.",
+    "table": {
+      "dealId": "Deal-ID",
+      "dealName": "Deal-Name",
+      "accountName": "Konto",
+      "status": "Status",
+      "amount": "Betrag",
+      "createdDate": "Erstellungsdatum",
+      "actions": "Aktionen"
+    }
+  },
+  "dealDetails": {
+    "backToDeals": "Zurück zu Deals",
+    "loading": "Deal-Details werden geladen...",
+    "notFoundTitle": "Deal nicht gefunden",
+    "notFoundText": "Der gesuchte Deal existiert nicht oder wurde entfernt.",
+    "accountInfo": "Kontoinformationen",
+    "contactInfo": "Kontaktinformationen",
+    "description": "Beschreibung",
+    "status": "Status",
+    "amount": "Betrag",
+    "createdDate": "Erstellungsdatum",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "accountName": "Kontoname",
+    "assignedTo": "Zugewiesen an",
+    "contactPerson": "Kontaktperson",
+    "email": "E-Mail"
+  },
+  "dealStatus": {
+    "open": "Offen",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt"
+  },
+  "userRole": {
+    "admin": "Administrator",
+    "partner": "Partner"
+  },
+  "language": {
+    "select": "Sprache"
+  }
+}
